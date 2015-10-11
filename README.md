@@ -16,9 +16,8 @@ Vertx Extra
 
 Vertx compatible wrapper around the metrics Java client. 
 
-
-Instrumenting Your Application
-------------------------------
+Instrumenting Your Vertx Application
+------------------------------------
 
 ### Add Dependency
 
@@ -134,11 +133,11 @@ Prerequisites:
 * [Maven 3.2.5+](http://maven.apache.org/download.cgi)
 
 Building:
-    metrics-vertx-extra> mvn verify
+    metrics-vertx-extra> ./mvnw verify
 
 To use the local version you must first install it locally:
 
-    metrics-vertx-extra> mvn install
+    metrics-vertx-extra> ./mvnw install
 
 You can determine the version of the local build from the pom file.  Using the local version is intended only for testing or development.
 
