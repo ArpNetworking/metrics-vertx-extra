@@ -18,7 +18,7 @@
   <parent>
     <groupId>com.arpnetworking.build</groupId>
     <artifactId>arpnetworking-parent-pom</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <relativePath/>
   </parent>
 
@@ -86,12 +86,13 @@
     <!--Dependency versions-->
     <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
     <google.collections.version>1.0</google.collections.version>
+    <jackson.version>2.6.2</jackson.version>
     <jsr305.version>3.0.0</jsr305.version>
     <junit.version>4.12</junit.version>
     <metrics.client.version>0.3.7</metrics.client.version>
     <mockito.version>1.10.19</mockito.version>
     <slf4j.version>1.7.12</slf4j.version>
-    <vertx.version>2.1.5</vertx.version>
+    <vertx.version>2.1.6</vertx.version>
     <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
 
     <!-- Findbugs -->
@@ -150,6 +151,30 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-platform</artifactId>
       <version>${vertx.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+      <version>${vertx.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
