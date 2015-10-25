@@ -31,30 +31,6 @@ import java.util.Objects;
 public final class TsdEvent implements Event {
 
     /**
-     * Public constructor.
-     *
-     * NOTE: This method does <b>not</b> perform a deep copy of the provided
-     * data structures. Callers are expected to <b>not</b> modify these data
-     * structures after passing them to this constructor. This is acceptable
-     * since this class is for internal implementation only.
-     *
-     * @param annotations The annotations.
-     * @param timerSamples The timer samples.
-     * @param counterSamples The counter samples.
-     * @param gaugeSamples The gauge samples.
-     */
-    public TsdEvent(
-            final Map<String, String> annotations,
-            final Map<String, List<Quantity>> timerSamples,
-            final Map<String, List<Quantity>> counterSamples,
-            final Map<String, List<Quantity>> gaugeSamples) {
-        _annotations = annotations;
-        _timerSamples = timerSamples;
-        _counterSamples = counterSamples;
-        _gaugeSamples = gaugeSamples;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
