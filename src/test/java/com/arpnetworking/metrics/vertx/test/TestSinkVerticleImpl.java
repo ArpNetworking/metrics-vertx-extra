@@ -15,6 +15,7 @@
  */
 package com.arpnetworking.metrics.vertx.test;
 
+import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Sink;
 import com.arpnetworking.metrics.vertx.SinkVerticle;
 import com.google.common.collect.ImmutableList;
@@ -39,7 +40,7 @@ public final class TestSinkVerticleImpl extends SinkVerticle {
     @SuppressWarnings("unchecked")
     public List<Sink> createSinks() {
         final Sink sink = Mockito.mock(Sink.class);
-        Mockito.doNothing().when(sink).record(Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap());
+        Mockito.doNothing().when(sink).record(Mockito.any(Event.class));
         return ImmutableList.of(sink);
     }
 
@@ -79,6 +80,7 @@ public final class TestSinkVerticleImpl extends SinkVerticle {
             } catch (final Exception e) {
                 // CHECKSTYLE.ON: IllegalCatch
                 // On failure do not reply
+                System.err.println(e);
             }
         }
     }

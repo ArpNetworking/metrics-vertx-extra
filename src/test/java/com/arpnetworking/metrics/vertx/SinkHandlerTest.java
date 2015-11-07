@@ -17,7 +17,10 @@ package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.Unit;
+import com.arpnetworking.metrics.Units;
+import com.arpnetworking.metrics.impl.BaseScale;
+import com.arpnetworking.metrics.impl.BaseUnit;
+import com.arpnetworking.metrics.impl.TsdCompoundUnit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -139,10 +142,12 @@ public final class SinkHandlerTest {
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
         Mockito.verify(_mockSink).record(
-                Collections.emptyMap(),
-                Collections.emptyMap(),
-                Collections.emptyMap(),
-                Collections.emptyMap());
+                new SinkVerticle.DefaultEvent.Builder()
+                        .setAnnotations(Collections.emptyMap())
+                        .setCounterSamples(Collections.emptyMap())
+                        .setGaugeSamples(Collections.emptyMap())
+                        .setTimerSamples(Collections.emptyMap())
+                        .build());
     }
 
     @Test
@@ -151,17 +156,17 @@ public final class SinkHandlerTest {
         final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
                 "timerSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(100, Unit.MEGABYTE),
-                        SinkVerticle.DefaultQuantity.newInstance(40, Unit.GIGABYTE)));
+                        SinkVerticle.DefaultQuantity.newInstance(100, Units.MEGABYTE),
+                        SinkVerticle.DefaultQuantity.newInstance(40, Units.GIGABYTE)));
         final Map<String, List<Quantity>> counterSampleMap = ImmutableMap.of(
                 "counterSamples",
                 Collections.singletonList(
-                        SinkVerticle.DefaultQuantity.newInstance(400, Unit.MILLISECOND)));
+                        SinkVerticle.DefaultQuantity.newInstance(400, Units.MILLISECOND)));
         final Map<String, List<Quantity>> gaugeSampleMap = ImmutableMap.of(
                 "gaugeSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(1000, Unit.MILLISECOND),
-                        SinkVerticle.DefaultQuantity.newInstance(5, Unit.MINUTE)));
+                        SinkVerticle.DefaultQuantity.newInstance(1000, Units.MILLISECOND),
+                        SinkVerticle.DefaultQuantity.newInstance(5, Units.MINUTE)));
         final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
                 ANNOTATIONS_KEY,
                 annotationMap,
@@ -173,8 +178,13 @@ public final class SinkHandlerTest {
                 gaugeSampleMap));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verify(_mockSink)
-                .record(annotationMap, timerSampleMap, counterSampleMap, gaugeSampleMap);
+        Mockito.verify(_mockSink).record(
+                new SinkVerticle.DefaultEvent.Builder()
+                        .setAnnotations(annotationMap)
+                        .setTimerSamples(timerSampleMap)
+                        .setCounterSamples(counterSampleMap)
+                        .setGaugeSamples(gaugeSampleMap)
+                        .build());
     }
 
     @Test
@@ -190,7 +200,221 @@ public final class SinkHandlerTest {
                 ImmutableMap.of(
                         "validKey",
                         Collections.singletonList(
-                                SinkVerticle.DefaultQuantity.newInstance(10, Unit.MEGABYTE)))));
+                                SinkVerticle.DefaultQuantity.newInstance(10, Units.MEGABYTE)))));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verifyZeroInteractions(_mockSink);
+    }
+
+    @Test
+    public void testHandleWithUnits() throws JsonProcessingException {
+        final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(
+                        // BaseUnit
+                        SinkVerticle.DefaultQuantity.newInstance(100, Units.BYTE),
+                        // TsdUnit
+                        SinkVerticle.DefaultQuantity.newInstance(20, Units.MEGABYTE),
+                        // TsdCompoundUnit
+                        SinkVerticle.DefaultQuantity.newInstance(3, Units.BYTES_PER_SECOND),
+                        // TsdCompoundUnit (Numerator Only)
+                        SinkVerticle.DefaultQuantity.newInstance(
+                                4,
+                                new TsdCompoundUnit.Builder()
+                                        .setNumeratorUnits(ImmutableList.of(BaseUnit.BIT, BaseUnit.SECOND))
+                                        .build()),
+                        // TsdCompoundUnit (Denominator Only)
+                        SinkVerticle.DefaultQuantity.newInstance(
+                                5,
+                                new TsdCompoundUnit.Builder()
+                                        .setDenominatorUnits(ImmutableList.of(BaseUnit.CELSIUS, BaseUnit.SECOND))
+                                        .build())));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verify(_mockSink).record(
+                new SinkVerticle.DefaultEvent.Builder()
+                        .setAnnotations(ImmutableMap.of())
+                        .setTimerSamples(timerSampleMap)
+                        .setCounterSamples(ImmutableMap.of())
+                        .setGaugeSamples(ImmutableMap.of())
+                        .build());
+    }
+
+    @Test
+    public void testHandleWithTsdUnitBaseUnitOnly() throws JsonProcessingException {
+        final Map<String, List<Quantity>> expectedTimerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(SinkVerticle.DefaultQuantity.newInstance(1, Units.BIT)));
+
+        final Map<String, Object> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(ImmutableMap.<String, Object>of(
+                        "value", 1,
+                        "unit", ImmutableMap.of(
+                                "baseUnit", BaseUnit.BIT))));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verify(_mockSink).record(
+                new SinkVerticle.DefaultEvent.Builder()
+                        .setAnnotations(ImmutableMap.of())
+                        .setTimerSamples(expectedTimerSampleMap)
+                        .setCounterSamples(ImmutableMap.of())
+                        .setGaugeSamples(ImmutableMap.of())
+                        .build());
+    }
+
+    @Test
+    public void testHandleWithTsdUnitScaleOnly() throws JsonProcessingException {
+        final Map<String, List<Quantity>> expectedTimerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(SinkVerticle.DefaultQuantity.newInstance(1, null)));
+
+        final Map<String, Object> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(ImmutableMap.<String, Object>of(
+                        "value", 1,
+                        "unit", ImmutableMap.of(
+                                "baseScale", BaseScale.CENTI))));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verify(_mockSink).record(
+                new SinkVerticle.DefaultEvent.Builder()
+                        .setAnnotations(ImmutableMap.of())
+                        .setTimerSamples(expectedTimerSampleMap)
+                        .setCounterSamples(ImmutableMap.of())
+                        .setGaugeSamples(ImmutableMap.of())
+                        .build());
+    }
+
+    @Test
+    public void testHandleWithInvalidUnit() throws JsonProcessingException {
+        final Map<String, Object> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(ImmutableMap.<String, Object>of(
+                        "value", 1,
+                        "unit", ImmutableList.of())));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verifyZeroInteractions(_mockSink);
+    }
+
+    @Test
+    public void testHandleWithInvalidBaseUnit() throws JsonProcessingException {
+        final Map<String, Object> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(ImmutableMap.<String, Object>of(
+                        "value", 1,
+                        "unit", "INVALID_BASE_UNIT")));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verifyZeroInteractions(_mockSink);
+    }
+
+    @Test
+    public void testHandleWithInvalidUnitObject() throws JsonProcessingException {
+        final Map<String, Object> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(ImmutableMap.<String, Object>of(
+                        "value", 1,
+                        "unit", ImmutableMap.of())));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verifyZeroInteractions(_mockSink);
+    }
+
+    @Test
+    public void testHandleWithInvalidNumerator() throws JsonProcessingException {
+        final Map<String, Object> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(ImmutableMap.<String, Object>of(
+                        "value", 1,
+                        "unit", ImmutableMap.of(
+                                "numeratorUnits", "INVALID_NUMERATOR"))));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
+        Mockito.doReturn(messageBody).when(_message).body();
+        _handler.handle(_message);
+        Mockito.verifyZeroInteractions(_mockSink);
+    }
+
+    @Test
+    public void testHandleWithInvalidDenominator() throws JsonProcessingException {
+        final Map<String, Object> timerSampleMap = ImmutableMap.of(
+                "timerSamples",
+                Arrays.asList(ImmutableMap.<String, Object>of(
+                        "value", 1,
+                        "unit", ImmutableMap.of(
+                                "denominatorUnits", "INVALID_NUMERATOR"))));
+        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
+                ANNOTATIONS_KEY,
+                ImmutableMap.of(),
+                TIMER_SAMPLES_KEY,
+                timerSampleMap,
+                COUNTER_SAMPLES_KEY,
+                ImmutableMap.of(),
+                GAUGE_SAMPLES_KEY,
+                ImmutableMap.of()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
         Mockito.verifyZeroInteractions(_mockSink);

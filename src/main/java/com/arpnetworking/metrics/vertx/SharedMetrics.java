@@ -23,6 +23,7 @@ import com.arpnetworking.metrics.Unit;
 import org.vertx.java.core.shareddata.Shareable;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
@@ -165,8 +166,16 @@ public class SharedMetrics implements Metrics, Shareable {
      * {@inheritDoc}
      */
     @Override
-    public void annotate(final String key, final String value) {
-        _wrappedMetrics.annotate(key, value);
+    public void addAnnotation(final String key, final String value) {
+        _wrappedMetrics.addAnnotation(key, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addAnnotations(final Map<String, String> map) {
+        _wrappedMetrics.addAnnotations(map);
     }
 
     /**

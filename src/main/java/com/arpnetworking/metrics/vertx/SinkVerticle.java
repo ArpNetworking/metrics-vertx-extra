@@ -19,18 +19,32 @@ import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
 import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.impl.TsdEvent;
+import com.arpnetworking.metrics.impl.BaseScale;
+import com.arpnetworking.metrics.impl.BaseUnit;
+import com.arpnetworking.metrics.impl.TsdCompoundUnit;
+import com.arpnetworking.metrics.impl.TsdUnit;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.platform.Verticle;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -124,14 +138,10 @@ public abstract class SinkVerticle extends Verticle {
          * @throws Exception if Message processing fails.
          */
         protected void processMessage(final Message<String> message) throws Exception {
-            final TsdEvent.Builder eventBuilder = OBJECT_MAPPER.readValue(message.body(), TsdEvent.Builder.class);
+            final DefaultEvent.Builder eventBuilder = OBJECT_MAPPER.readValue(message.body(), DefaultEvent.Builder.class);
             final Event event = eventBuilder.build();
             for (final Sink sink: _sinks) {
-                sink.record(
-                        event.getAnnotations(),
-                        event.getTimerSamples(),
-                        event.getCounterSamples(),
-                        event.getGaugeSamples());
+                sink.record(event);
             }
         }
 
@@ -143,7 +153,233 @@ public abstract class SinkVerticle extends Verticle {
         static {
             final SimpleModule module = new SimpleModule();
             module.addAbstractTypeMapping(Quantity.class, DefaultQuantity.class);
+            module.addDeserializer(Unit.class, new UnitDeserializer());
             OBJECT_MAPPER.registerModule(module);
+        }
+
+        private static final class UnitDeserializer extends JsonDeserializer<Unit> {
+            @Override
+            public Unit deserialize(
+                    final JsonParser jsonParser,
+                    final DeserializationContext deserializationContext) throws IOException {
+                return readUnit(jsonParser.readValueAs(JsonNode.class));
+            }
+
+            private static Unit readUnit(final JsonNode node) {
+                if (node instanceof TextNode) {
+                    // This is a base unit
+                    return readBaseUnit((TextNode) node);
+                } else if (node instanceof ObjectNode) {
+                    // This is a scaled or compound unit
+                    final ObjectNode objectNode = (ObjectNode) node;
+                    if (objectNode.has("numeratorUnits") || objectNode.has("denominatorUnits")) {
+                        // This is a compound unit
+                        final List<Unit> numeratorUnits = new ArrayList<>();
+                        final List<Unit> denominatorUnits = new ArrayList<>();
+                        if (objectNode.has("numeratorUnits")) {
+                            readUnitArray(numeratorUnits, objectNode.get("numeratorUnits"));
+                        }
+                        if (objectNode.has("denominatorUnits")) {
+                            readUnitArray(denominatorUnits, objectNode.get("denominatorUnits"));
+                        }
+                        return new TsdCompoundUnit.Builder()
+                                .setNumeratorUnits(numeratorUnits)
+                                .setDenominatorUnits(denominatorUnits)
+                                .build();
+                    } else if (objectNode.has("baseUnit") || objectNode.has("baseScale")) {
+                        // This is a scaled unit
+                        final TsdUnit.Builder tsdUnitBuilder = new TsdUnit.Builder();
+                        if (objectNode.has("baseUnit")) {
+                            tsdUnitBuilder.setBaseUnit(BaseUnit.valueOf(objectNode.get("baseUnit").asText()));
+                        }
+                        if (objectNode.has("baseScale")) {
+                            tsdUnitBuilder.setScale(BaseScale.valueOf(objectNode.get("baseScale").asText()));
+                        }
+                        return tsdUnitBuilder.build();
+                    }
+                }
+                throw new IllegalArgumentException("Expected unit; found: " + node);
+            }
+
+            private static Unit readBaseUnit(final TextNode node) {
+                return BaseUnit.valueOf(node.textValue());
+            }
+
+            private static void readUnitArray(final List<Unit> units, final JsonNode node) {
+                if (node.isArray()) {
+                    final ArrayNode arrayNode = (ArrayNode) node;
+                    for (final Iterator<JsonNode> iterator = arrayNode.elements(); iterator.hasNext();) {
+                        units.add(readUnit(iterator.next()));
+                    }
+                } else {
+                    throw new IllegalArgumentException("Expected unit list; found: " + node);
+                }
+            }
+        }
+    }
+
+    /**
+     * Default implementation of <code>Event</code> for deserialization purposes.
+     */
+    public static final class DefaultEvent implements Event {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Map<String, String> getAnnotations() {
+            return Collections.unmodifiableMap(_annotations);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Map<String, List<Quantity>> getTimerSamples() {
+            return Collections.unmodifiableMap(_timerSamples);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Map<String, List<Quantity>> getCounterSamples() {
+            return Collections.unmodifiableMap(_counterSamples);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Map<String, List<Quantity>> getGaugeSamples() {
+            return Collections.unmodifiableMap(_gaugeSamples);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean equals(final Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof DefaultEvent)) {
+                return false;
+            }
+            final DefaultEvent otherEvent = (DefaultEvent) other;
+            return Objects.equals(_annotations, otherEvent._annotations)
+                    && Objects.equals(_counterSamples, otherEvent._counterSamples)
+                    && Objects.equals(_timerSamples, otherEvent._timerSamples)
+                    && Objects.equals(_gaugeSamples, otherEvent._gaugeSamples);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int hashCode() {
+            return Objects.hash(_annotations, _counterSamples, _timerSamples, _gaugeSamples);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return String.format(
+                    "DefaultEvent{Annotations=%s, TimerSamples=%s, CounterSamples=%s, GaugeSamples=%s}",
+                    _annotations,
+                    _timerSamples,
+                    _counterSamples,
+                    _gaugeSamples);
+        }
+
+        private DefaultEvent(final Builder builder) {
+            _annotations = Collections.unmodifiableMap(builder._annotations);
+            _timerSamples = Collections.unmodifiableMap(builder._timerSamples);
+            _gaugeSamples = Collections.unmodifiableMap(builder._gaugeSamples);
+            _counterSamples = Collections.unmodifiableMap(builder._counterSamples);
+        }
+
+        private final Map<String, String> _annotations;
+        private final Map<String, List<Quantity>> _timerSamples;
+        private final Map<String, List<Quantity>> _counterSamples;
+        private final Map<String, List<Quantity>> _gaugeSamples;
+
+        /**
+         * Builder implementation for <code>TsdEvent</code>.
+         */
+        public static final class Builder {
+
+            /**
+             * Builds an instance of <code>TsdEvent</code>.
+             *
+             * @return An instance of <code>TsdEvent</code>.
+             */
+            public Event build() {
+                if (_annotations == null) {
+                    throw new IllegalArgumentException("Annotations cannot be null.");
+                }
+                if (_timerSamples == null) {
+                    throw new IllegalArgumentException("TimerSamples cannot be null.");
+                }
+                if (_counterSamples == null) {
+                    throw new IllegalArgumentException("CounterSamples cannot be null.");
+                }
+                if (_gaugeSamples == null) {
+                    throw new IllegalArgumentException("GaugeSamples cannot be null.");
+                }
+                return new DefaultEvent(this);
+            }
+
+            /**
+             * Sets the annotations.
+             *
+             * @param value A <code>Map</code> for annotations.
+             * @return This instance of <code>Builder</code>.
+             */
+            public Builder setAnnotations(final Map<String, String> value) {
+                _annotations = Collections.unmodifiableMap(value);
+                return this;
+            }
+
+            /**
+             * Sets the timer samples.
+             *
+             * @param value A <code>Map</code> for timer samples.
+             * @return This instance of <code>Builder</code>.
+             */
+            public Builder setTimerSamples(final Map<String, List<Quantity>> value) {
+                _timerSamples = Collections.unmodifiableMap(value);
+                return this;
+            }
+
+            /**
+             * Sets the counter samples.
+             *
+             * @param value A <code>Map</code> for counter samples.
+             * @return This instance of <code>Builder</code>.
+             */
+            public Builder setCounterSamples(final Map<String, List<Quantity>> value) {
+                _counterSamples = Collections.unmodifiableMap(value);
+                return this;
+            }
+
+            /**
+             * Sets the gauge samples.
+             *
+             * @param value A <code>Map</code> for gauge samples.
+             * @return This instance of <code>Builder</code>.
+             */
+            public Builder setGaugeSamples(final Map<String, List<Quantity>> value) {
+                _gaugeSamples = Collections.unmodifiableMap(value);
+                return this;
+            }
+
+            private Map<String, String> _annotations;
+            private Map<String, List<Quantity>> _timerSamples;
+            private Map<String, List<Quantity>> _counterSamples;
+            private Map<String, List<Quantity>> _gaugeSamples;
         }
     }
 
@@ -207,10 +443,7 @@ public abstract class SinkVerticle extends Verticle {
          */
         @Override
         public int hashCode() {
-            int hash = 17;
-            hash = hash * 31 + _value.hashCode();
-            hash = hash * 31 + _unit.hashCode();
-            return hash;
+            return Objects.hash(_value, _unit);
         }
 
         private DefaultQuantity(final Number value, final Unit unit) {

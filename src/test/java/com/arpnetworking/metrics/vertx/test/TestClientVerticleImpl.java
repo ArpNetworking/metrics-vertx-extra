@@ -17,13 +17,14 @@ package com.arpnetworking.metrics.vertx.test;
 
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.Unit;
+import com.arpnetworking.metrics.Units;
 import com.arpnetworking.metrics.vertx.EventBusSink;
 import com.arpnetworking.metrics.vertx.SinkVerticle;
 import com.google.common.collect.ImmutableMap;
 import org.vertx.java.platform.Verticle;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,13 @@ public class TestClientVerticleImpl extends Verticle {
         final Sink sink = new EventBusSink.Builder()
                 .setEventBus(vertx.eventBus())
                 .build();
-        sink.record(ANNOTATIONS, TIMER_SAMPLES, COUNTER_SAMPLES, GAUGE_SAMPLES);
+        sink.record(
+                new SinkVerticle.DefaultEvent.Builder()
+                        .setAnnotations(ANNOTATIONS)
+                        .setTimerSamples(TIMER_SAMPLES)
+                        .setGaugeSamples(GAUGE_SAMPLES)
+                        .setCounterSamples(COUNTER_SAMPLES)
+                        .build());
     }
 
     /**
@@ -52,21 +59,21 @@ public class TestClientVerticleImpl extends Verticle {
     public static final Map<String, List<Quantity>> TIMER_SAMPLES = ImmutableMap.of(
             "timerSamples",
             Arrays.asList(
-                    SinkVerticle.DefaultQuantity.newInstance(100, Unit.MEGABYTE),
-                    SinkVerticle.DefaultQuantity.newInstance(40, Unit.GIGABYTE)));
+                    SinkVerticle.DefaultQuantity.newInstance(100, Units.MEGABYTE),
+                    SinkVerticle.DefaultQuantity.newInstance(40, Units.GIGABYTE)));
     /**
      * Static counter samples map.
      */
     public static final Map<String, List<Quantity>> COUNTER_SAMPLES = ImmutableMap.of(
             "counterSamples",
-            Arrays.asList(
-                    SinkVerticle.DefaultQuantity.newInstance(400, Unit.MILLISECOND)));
+            Collections.singletonList(
+                    SinkVerticle.DefaultQuantity.newInstance(400, Units.MILLISECOND)));
     /**
      * Static gauge samples map.
      */
     public static final Map<String, List<Quantity>> GAUGE_SAMPLES = ImmutableMap.of(
             "gaugeSamples",
             Arrays.asList(
-                    SinkVerticle.DefaultQuantity.newInstance(1000, Unit.MILLISECOND),
-                    SinkVerticle.DefaultQuantity.newInstance(5, Unit.MINUTE)));
+                    SinkVerticle.DefaultQuantity.newInstance(1000, Units.MILLISECOND),
+                    SinkVerticle.DefaultQuantity.newInstance(5, Units.MINUTE)));
 }
