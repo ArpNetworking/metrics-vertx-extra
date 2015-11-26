@@ -27,7 +27,7 @@
   <artifactId>vertx-extra</artifactId>
   <packaging>jar</packaging>
   <name>Vertx Extra</name>
-  <version>0.4.0</version>
+  <version>0.4.1-SNAPSHOT</version>
 
   <licenses>
     <license>
@@ -79,7 +79,7 @@
     <connection>scm:git:git@github.com:arpnetworking/metrics-vertx-extra.git</connection>
     <developerConnection>scm:git:git@github.com:arpnetworking/metrics-vertx-extra.git</developerConnection>
     <url>https://github.com/arpnetworking/metrics-vertx-extra</url>
-    <tag>vertx-extra-0.4.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
