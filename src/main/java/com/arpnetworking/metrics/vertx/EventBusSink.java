@@ -15,18 +15,22 @@
  */
 package com.arpnetworking.metrics.vertx;
 
+import com.arpnetworking.metrics.CompoundUnit;
 import com.arpnetworking.metrics.Event;
-import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.impl.TsdEvent;
+import com.arpnetworking.metrics.Unit;
+import com.arpnetworking.metrics.impl.TsdUnit;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.eventbus.EventBus;
 
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
 
 /**
  * This defines a sink that writes to the Vertx event bus.
@@ -38,18 +42,8 @@ public final class EventBusSink implements Sink {
      * {@inheritDoc}
      */
     @Override
-    public void record(
-            final Map<String, String> annotations,
-            final Map<String, List<Quantity>> timerSamples,
-            final Map<String, List<Quantity>> counterSamples,
-            final Map<String, List<Quantity>> gaugeSamples) {
+    public void record(final Event event) {
         try {
-            final Event event = new TsdEvent.Builder()
-                    .setAnnotations(annotations)
-                    .setCounterSamples(counterSamples)
-                    .setTimerSamples(timerSamples)
-                    .setGaugeSamples(gaugeSamples)
-                    .build();
             LOGGER.debug(String.format("Sending event to sink. Address=%s", _sinkAddress));
             _eventBus.publish(_sinkAddress, OBJECT_MAPPER.writeValueAsString(event));
         } catch (final JsonProcessingException e) {
@@ -71,6 +65,42 @@ public final class EventBusSink implements Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventBusSink.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    static {
+        final SimpleModule module = new SimpleModule();
+        module.addSerializer(Unit.class, new UnitSerializer());
+        OBJECT_MAPPER.registerModule(module);
+    }
+
+    /* package private */ static final class UnitSerializer extends JsonSerializer<Unit> {
+        @Override
+        public void serialize(
+                final Unit unit,
+                final JsonGenerator jsonGenerator,
+                final SerializerProvider serializerProvider)
+                throws IOException {
+            if (unit instanceof CompoundUnit) {
+                // It's a compound unit
+                final CompoundUnit compoundUnit = (CompoundUnit) unit;
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeObjectField("numeratorUnits", compoundUnit.getNumeratorUnits());
+                jsonGenerator.writeObjectField("denominatorUnits", compoundUnit.getDenominatorUnits());
+
+                jsonGenerator.writeEndObject();
+            } else if (unit instanceof TsdUnit) {
+                // It's a base unit plus scale
+                // NOTE: This is a hack since this relies on an implementation specific serialized form!
+                final TsdUnit tsdUnit = (TsdUnit) unit;
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("baseUnit", tsdUnit.getBaseUnit().toString());
+                jsonGenerator.writeStringField("baseScale", tsdUnit.getBaseScale().toString());
+                jsonGenerator.writeEndObject();
+            } else {
+                // It's a base unit
+                jsonGenerator.writeString(unit.toString());
+            }
+        }
+    }
 
     /**
      * Builder class for <code>EventBusSink</code>.

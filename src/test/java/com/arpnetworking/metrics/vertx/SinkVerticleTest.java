@@ -17,10 +17,11 @@ package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.impl.TsdEvent;
+import com.arpnetworking.metrics.Units;
 import com.arpnetworking.metrics.vertx.test.TestSinkVerticleImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.vertx.java.core.eventbus.Message;
@@ -57,24 +58,24 @@ public class SinkVerticleTest extends TestVerticle {
     }
 
     @Test
-    public void testValidMessageSentOnEB() throws JsonProcessingException {
+    public void testValidMessageSentOnEB() throws JsonProcessingException, InterruptedException {
         final Map<String, String> annotationMap = ImmutableMap.of("someAnnotationKey", "someAnnotationValue");
         final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
                 "timerSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(100, Unit.MEGABYTE),
-                        SinkVerticle.DefaultQuantity.newInstance(40, Unit.GIGABYTE)));
+                        SinkVerticle.DefaultQuantity.newInstance(100, Units.BIT),
+                        SinkVerticle.DefaultQuantity.newInstance(40, Units.GIGABIT)));
         final Map<String, List<Quantity>> counterSampleMap = ImmutableMap.of(
                 "counterSamples",
                 Collections.singletonList(
-                        SinkVerticle.DefaultQuantity.newInstance(400, Unit.MILLISECOND)));
+                        SinkVerticle.DefaultQuantity.newInstance(400, Units.BITS_PER_SECOND)));
         final Map<String, List<Quantity>> gaugeSampleMap = ImmutableMap.of(
                 "gaugeSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(1000, Unit.MILLISECOND),
-                        SinkVerticle.DefaultQuantity.newInstance(5, Unit.MINUTE)));
+                        SinkVerticle.DefaultQuantity.newInstance(1000, Units.MILLISECOND),
+                        SinkVerticle.DefaultQuantity.newInstance(5, Units.MINUTE)));
         final String data = OBJECT_MAPPER.writeValueAsString(
-                new TsdEvent.Builder()
+                new SinkVerticle.DefaultEvent.Builder()
                         .setAnnotations(annotationMap)
                         .setTimerSamples(timerSampleMap)
                         .setCounterSamples(counterSampleMap)
@@ -84,6 +85,7 @@ public class SinkVerticleTest extends TestVerticle {
                 SINK_ADDRESS,
                 data,
                 (Message<String> reply) -> {
+                    // TODO(vkoskela): The hook should get the deserialized data and compare it with equals().
                     VertxAssert.assertEquals(data, reply.body());
                     VertxAssert.testComplete();
                 });
@@ -108,4 +110,10 @@ public class SinkVerticleTest extends TestVerticle {
     private static final String TARGET_WORKER_VERTICLE_NAME = TestSinkVerticleImpl.class.getCanonicalName();
     private static final String SINK_ADDRESS = "sink.address.sinkVerticleTest";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    static {
+        final SimpleModule module = new SimpleModule();
+        module.addSerializer(Unit.class, new EventBusSink.UnitSerializer());
+        OBJECT_MAPPER.registerModule(module);
+    }
 }

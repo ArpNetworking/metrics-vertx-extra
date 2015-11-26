@@ -18,8 +18,9 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Counter;
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.Timer;
-import com.arpnetworking.metrics.Unit;
 
+import com.arpnetworking.metrics.Units;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -118,8 +120,8 @@ public class SharedMetricsTest {
 
     @Test
     public void testSetTimerUnit() throws Exception {
-        _sharedMetrics.setTimer("name", 1234L, Unit.MILLISECOND);
-        Mockito.verify(_mockMetrics, Mockito.times(1)).setTimer("name", 1234L, Unit.MILLISECOND);
+        _sharedMetrics.setTimer("name", 1234L, Units.MILLISECOND);
+        Mockito.verify(_mockMetrics, Mockito.times(1)).setTimer("name", 1234L, Units.MILLISECOND);
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
@@ -132,8 +134,8 @@ public class SharedMetricsTest {
 
     @Test
     public void testSetGaugeLongUnit() throws Exception {
-        _sharedMetrics.setGauge("name", 1234L, Unit.BYTE);
-        Mockito.verify(_mockMetrics, Mockito.times(1)).setGauge("name", 1234L, Unit.BYTE);
+        _sharedMetrics.setGauge("name", 1234L, Units.BYTE);
+        Mockito.verify(_mockMetrics, Mockito.times(1)).setGauge("name", 1234L, Units.BYTE);
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
@@ -146,15 +148,23 @@ public class SharedMetricsTest {
 
     @Test
     public void testSetGaugeDoubleUnit() throws Exception {
-        _sharedMetrics.setGauge("name", 1.2D, Unit.BYTE);
-        Mockito.verify(_mockMetrics, Mockito.times(1)).setGauge("name", 1.2D, Unit.BYTE);
+        _sharedMetrics.setGauge("name", 1.2D, Units.BYTE);
+        Mockito.verify(_mockMetrics, Mockito.times(1)).setGauge("name", 1.2D, Units.BYTE);
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
     @Test
-    public void testAnnotate() throws Exception {
-        _sharedMetrics.annotate("key", "value");
-        Mockito.verify(_mockMetrics, Mockito.times(1)).annotate("key", "value");
+    public void testAddAnnotation() throws Exception {
+        _sharedMetrics.addAnnotation("key", "value");
+        Mockito.verify(_mockMetrics, Mockito.times(1)).addAnnotation("key", "value");
+        Mockito.verifyNoMoreInteractions(_mockMetrics);
+    }
+
+    @Test
+    public void testAddAnnotations() throws Exception {
+        final Map<String, String> annotations = ImmutableMap.of("key1", "value1", "key2", "value2");
+        _sharedMetrics.addAnnotations(annotations);
+        Mockito.verify(_mockMetrics, Mockito.times(1)).addAnnotations(annotations);
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
@@ -169,6 +179,20 @@ public class SharedMetricsTest {
     public void testClose() throws Exception {
         _sharedMetrics.close();
         Mockito.verify(_mockMetrics, Mockito.times(1)).close();
+        Mockito.verifyNoMoreInteractions(_mockMetrics);
+    }
+
+    @Test
+    public void testGetOpenTime() throws Exception {
+        _sharedMetrics.getOpenTime();
+        Mockito.verify(_mockMetrics, Mockito.times(1)).getOpenTime();
+        Mockito.verifyNoMoreInteractions(_mockMetrics);
+    }
+
+    @Test
+    public void testGetCloseTime() throws Exception {
+        _sharedMetrics.getCloseTime();
+        Mockito.verify(_mockMetrics, Mockito.times(1)).getCloseTime();
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 

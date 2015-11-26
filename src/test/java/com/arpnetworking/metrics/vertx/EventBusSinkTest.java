@@ -15,13 +15,15 @@
  */
 package com.arpnetworking.metrics.vertx;
 
+import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
 import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.impl.TsdEvent;
+import com.arpnetworking.metrics.Units;
 import com.arpnetworking.metrics.vertx.test.TestQuantityImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -66,9 +68,15 @@ public final class EventBusSinkTest {
     public void testRecordWithEmptyMaps() throws JsonProcessingException {
         final EventBus eventBus = Mockito.mock(EventBus.class);
         final Sink sink = new EventBusSink.Builder().setEventBus(eventBus).setSinkAddress("sinkAddress").build();
-        sink.record(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        sink.record(
+                new SinkVerticle.DefaultEvent.Builder()
+                        .setAnnotations(Collections.emptyMap())
+                        .setCounterSamples(Collections.emptyMap())
+                        .setGaugeSamples(Collections.emptyMap())
+                        .setTimerSamples(Collections.emptyMap())
+                        .build());
         final String data = OBJECT_MAPPER.writeValueAsString(
-                new TsdEvent.Builder()
+                new SinkVerticle.DefaultEvent.Builder()
                         .setAnnotations(Collections.emptyMap())
                         .setTimerSamples(Collections.emptyMap())
                         .setCounterSamples(Collections.emptyMap())
@@ -89,34 +97,41 @@ public final class EventBusSinkTest {
         final Map<String, List<Quantity>> timerMap = ImmutableMap.of(
                 "someTimerKey1",
                 Collections.singletonList(
-                        new TestQuantityImpl.Builder().setUnit(Unit.MILLISECOND).setValue(12).build()),
+                        new TestQuantityImpl.Builder().setUnit(Units.MILLISECOND).setValue(12).build()),
                 "someTimerKey2",
                 Collections.singletonList(
-                        new TestQuantityImpl.Builder().setUnit(Unit.MILLISECOND).setValue(14).build()));
+                        new TestQuantityImpl.Builder().setUnit(Units.MILLISECOND).setValue(14).build()));
         final Map<String, List<Quantity>> counterMap = ImmutableMap.of(
                 "someCounterKey1",
                 Collections.singletonList(
-                        new TestQuantityImpl.Builder().setUnit(Unit.MEGABYTE).setValue(7).build()),
+                        new TestQuantityImpl.Builder().setUnit(Units.MEGABYTE).setValue(7).build()),
                 "someCounterKey2",
                 Collections.singletonList(
-                        new TestQuantityImpl.Builder().setUnit(Unit.KILOBYTE).setValue(15).build()));
+                        new TestQuantityImpl.Builder().setUnit(Units.KILOBYTE).setValue(15).build()));
         final Map<String, List<Quantity>> gaugeMap = ImmutableMap.of(
                 "someGaugeKey1",
                 Collections.singletonList(
-                        new TestQuantityImpl.Builder().setUnit(Unit.MEGABYTE).setValue(1).build()),
+                        new TestQuantityImpl.Builder().setUnit(Units.MEGABYTE).setValue(1).build()),
                 "someGaugeKey2",
                 Collections.singletonList(
-                        new TestQuantityImpl.Builder().setUnit(Unit.KILOBYTE).setValue(150).build()));
-        sink.record(annotations, timerMap, counterMap, gaugeMap);
-        final String data = OBJECT_MAPPER.writeValueAsString(
-                new TsdEvent.Builder()
-                        .setAnnotations(annotations)
-                        .setTimerSamples(timerMap)
-                        .setCounterSamples(counterMap)
-                        .setGaugeSamples(gaugeMap)
-                        .build());
+                        new TestQuantityImpl.Builder().setUnit(Units.KILOBYTE).setValue(150).build()));
+        final Event event = new SinkVerticle.DefaultEvent.Builder()
+                .setAnnotations(annotations)
+                .setTimerSamples(timerMap)
+                .setCounterSamples(counterMap)
+                .setGaugeSamples(gaugeMap)
+                .build();
+        sink.record(event);
+        // TODO(vkoskela): This is not a proper test.
+        final String data = OBJECT_MAPPER.writeValueAsString(event);
         Mockito.verify(eventBus).publish("sinkAddress", data);
     }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    static {
+        final SimpleModule module = new SimpleModule();
+        module.addSerializer(Unit.class, new EventBusSink.UnitSerializer());
+        OBJECT_MAPPER.registerModule(module);
+    }
 }

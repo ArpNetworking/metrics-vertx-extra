@@ -15,10 +15,11 @@
  */
 package com.arpnetworking.metrics.vertx;
 
-import com.arpnetworking.metrics.impl.TsdEvent;
+import com.arpnetworking.metrics.Unit;
 import com.arpnetworking.metrics.vertx.test.TestClientVerticleImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -49,7 +50,7 @@ public class ClientVerticleTest extends TestVerticle {
     public void testClientVerticlePublishesToDefaultAddress() throws JsonProcessingException {
         Mockito.doNothing().when(_handler).handle(Matchers.<Message<String>>any());
         final String expectedData = OBJECT_MAPPER.writeValueAsString(
-                new TsdEvent.Builder()
+                new SinkVerticle.DefaultEvent.Builder()
                         .setAnnotations(TestClientVerticleImpl.ANNOTATIONS)
                         .setCounterSamples(TestClientVerticleImpl.COUNTER_SAMPLES)
                         .setTimerSamples(TestClientVerticleImpl.TIMER_SAMPLES)
@@ -77,4 +78,10 @@ public class ClientVerticleTest extends TestVerticle {
     private static final String DEFAULT_SINK_ADDRESS = "metrics.sink.default";
     private static final String TARGET_CLIENT_VERTICLE_NAME = TestClientVerticleImpl.class.getCanonicalName();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    static {
+        final SimpleModule module = new SimpleModule();
+        module.addSerializer(Unit.class, new EventBusSink.UnitSerializer());
+        OBJECT_MAPPER.registerModule(module);
+    }
 }
