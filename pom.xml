@@ -19,7 +19,7 @@
     <groupId>com.arpnetworking.build</groupId>
     <artifactId>arpnetworking-parent-pom</artifactId>
     <version>1.0.16</version>
-    <relativePath/>
+    <relativePath />
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -27,7 +27,7 @@
   <artifactId>vertx-extra</artifactId>
   <packaging>jar</packaging>
   <name>Vertx Extra</name>
-  <version>0.4.0-SNAPSHOT</version>
+  <version>0.4.0</version>
 
   <licenses>
     <license>
@@ -79,7 +79,7 @@
     <connection>scm:git:git@github.com:arpnetworking/metrics-vertx-extra.git</connection>
     <developerConnection>scm:git:git@github.com:arpnetworking/metrics-vertx-extra.git</developerConnection>
     <url>https://github.com/arpnetworking/metrics-vertx-extra</url>
-    <tag>HEAD</tag>
+    <tag>vertx-extra-0.4.0</tag>
   </scm>
 
   <properties>
