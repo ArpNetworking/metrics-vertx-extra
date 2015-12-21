@@ -27,6 +27,7 @@
   <artifactId>vertx-extra</artifactId>
   <packaging>jar</packaging>
   <name>Vertx Extra</name>
+  <description>Extension to metrics-java-client which adapts the client for use in the Vert.x framework.</description>
   <version>0.4.2-SNAPSHOT</version>
 
   <licenses>
@@ -103,7 +104,6 @@
     <jacoco.check.branch.coverage>0.95</jacoco.check.branch.coverage>
   </properties>
   <build>
-    <finalName>${project.artifactId}</finalName>
     <plugins>
       <!-- Enable Inherited Plugins -->
       <plugin>
