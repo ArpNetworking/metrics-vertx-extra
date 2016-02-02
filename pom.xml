@@ -179,13 +179,15 @@
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>${jsr305.version}</version>
+      <artifactId>annotations</artifactId>
+      <version>${findbugs.annotations.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
-      <artifactId>annotations</artifactId>
-      <version>${findbugs.annotations.version}</version>
+      <artifactId>jsr305</artifactId>
+      <version>${jsr305.version}</version>
+      <scope>provided</scope>
     </dependency>
     <!-- Test - General -->
     <dependency>
