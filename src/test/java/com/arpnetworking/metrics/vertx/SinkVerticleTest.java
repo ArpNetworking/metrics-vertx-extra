@@ -23,11 +23,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.RunTestOnContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.testtools.TestVerticle;
-import org.vertx.testtools.VertxAssert;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,26 +45,24 @@ import java.util.Map;
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
-public class SinkVerticleTest extends TestVerticle {
+@RunWith(VertxUnitRunner.class)
+public class SinkVerticleTest {
 
-    @Override
-    public void start() {
-        initialize();
-        container.deployWorkerVerticle(
+    @Before
+    public void setUp(final TestContext context) {
+        _rule.vertx().deployVerticle(
                 TARGET_WORKER_VERTICLE_NAME,
-                new JsonObject(Collections.singletonMap("sinkAddress", SINK_ADDRESS)),
-                1,
-                false,
-                asyncResultWorker -> {
-                    VertxAssert.assertTrue(asyncResultWorker.succeeded());
-                    // If deployed correctly then start the tests
-                    startTests();
-                }
+                new DeploymentOptions()
+                        .setConfig(new JsonObject(Collections.singletonMap("sinkAddress", SINK_ADDRESS)))
+                        .setInstances(1)
+                        .setWorker(true)
+                        .setMultiThreaded(false),
+                context.asyncAssertSuccess()
         );
     }
 
     @Test
-    public void testValidMessageSentOnEB() throws JsonProcessingException, InterruptedException {
+    public void testValidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, String> annotationMap = ImmutableMap.of("someAnnotationKey", "someAnnotationValue");
         final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
                 "timerSamples",
@@ -81,35 +85,36 @@ public class SinkVerticleTest extends TestVerticle {
                         .setCounterSamples(counterSampleMap)
                         .setGaugeSamples(gaugeSampleMap)
                         .build());
-        vertx.eventBus().send(
+        _rule.vertx().eventBus().send(
                 SINK_ADDRESS,
                 data,
-                (Message<String> reply) -> {
+                (AsyncResult<Message<String>> reply) -> {
                     // TODO(vkoskela): The hook should get the deserialized data and compare it with equals().
-                    VertxAssert.assertEquals(data, reply.body());
-                    VertxAssert.testComplete();
+                    context.assertEquals(data, reply.result().body());
                 });
     }
 
     @Test
-    public void testInvalidMessageSentOnEB() throws JsonProcessingException, InterruptedException {
+    public void testInvalidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, Object> dataMap = ImmutableMap.of("someKey", "someValue");
-        vertx.eventBus().send(
+        _rule.vertx().eventBus().send(
                 SINK_ADDRESS,
                 OBJECT_MAPPER.writeValueAsString(dataMap),
-                (Message<String> reply) -> {
-                    VertxAssert.assertNull(reply);
-                    VertxAssert.fail("No reply should have been sent to an invalid message");
+                (AsyncResult<Message<String>> reply) -> {
+                    context.assertNull(reply.result());
+                    context.fail("No reply should have been sent to an invalid message");
                 });
         // It is not possible to determine that a reply is _never_ sent
         // TODO(vkoskela): This test and its associated Verticle should be redesigned.
         Thread.sleep(1000);
-        VertxAssert.testComplete();
     }
 
     private static final String TARGET_WORKER_VERTICLE_NAME = TestSinkVerticleImpl.class.getCanonicalName();
     private static final String SINK_ADDRESS = "sink.address.sinkVerticleTest";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @Rule
+    public RunTestOnContext _rule = new RunTestOnContext();
 
     static {
         final SimpleModule module = new SimpleModule();

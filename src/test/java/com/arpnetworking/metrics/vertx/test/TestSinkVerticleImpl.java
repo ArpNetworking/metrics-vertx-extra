@@ -20,9 +20,9 @@ import com.arpnetworking.metrics.Sink;
 import com.arpnetworking.metrics.vertx.SinkVerticle;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import org.mockito.Mockito;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 
 import java.util.List;
 

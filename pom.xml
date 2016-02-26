@@ -93,7 +93,7 @@
     <metrics.client.version>0.4.3</metrics.client.version>
     <mockito.version>1.10.19</mockito.version>
     <slf4j.version>1.7.12</slf4j.version>
-    <vertx.version>2.1.6</vertx.version>
+    <vertx.version>3.2.1</vertx.version>
     <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
 
     <!-- Findbugs -->
@@ -149,13 +149,13 @@
     <!-- General -->
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-platform</artifactId>
+      <artifactId>vertx-core</artifactId>
       <version>${vertx.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
+      <artifactId>vertx-codegen</artifactId>
       <version>${vertx.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -204,8 +204,8 @@
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>testtools</artifactId>
-      <version>${vertx.testtools.version}</version>
+      <artifactId>vertx-unit</artifactId>
+      <version>${vertx.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

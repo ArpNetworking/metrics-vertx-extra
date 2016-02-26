@@ -19,8 +19,7 @@ import com.arpnetworking.metrics.Counter;
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.Timer;
 import com.arpnetworking.metrics.Unit;
-
-import org.vertx.java.core.shareddata.Shareable;
+import io.vertx.core.shareddata.Shareable;
 
 import java.time.Instant;
 import java.util.Map;

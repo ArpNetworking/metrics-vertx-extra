@@ -33,11 +33,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.platform.Verticle;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ import java.util.Objects;
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
-public abstract class SinkVerticle extends Verticle {
+public abstract class SinkVerticle extends AbstractVerticle {
 
     /**
      * {@inheritDoc}
@@ -70,9 +70,9 @@ public abstract class SinkVerticle extends Verticle {
     public void start() {
         _sinks = new ArrayList<>(createSinks());
         _handler = initializeHandler();
-        _sinkAddress = container.config().getString("sinkAddress", DEFAULT_SINK_ADDRESS);
+        _sinkAddress = config().getString("sinkAddress", DEFAULT_SINK_ADDRESS);
 
-        vertx.eventBus().registerHandler(_sinkAddress, _handler);
+        vertx.eventBus().localConsumer(_sinkAddress, _handler);
     }
 
     /**

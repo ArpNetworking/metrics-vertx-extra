@@ -20,34 +20,37 @@ import com.arpnetworking.metrics.vertx.test.TestClientVerticleImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.RunTestOnContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.testtools.TestVerticle;
-import org.vertx.testtools.VertxAssert;
 
 /**
  * Integration tests for client verticle writing to sinks through <code>EventBusSink</code> and <code>SinkVerticle</code>.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
-public class ClientVerticleTest extends TestVerticle {
+@RunWith(VertxUnitRunner.class)
+public class ClientVerticleTest {
 
-    @Override
-    public void start() {
+    @Before
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
-        initialize();
-        startTests();
     }
 
     @Test
-    public void testClientVerticlePublishesToDefaultAddress() throws JsonProcessingException {
+    public void testClientVerticlePublishesToDefaultAddress(final TestContext context) throws JsonProcessingException {
         Mockito.doNothing().when(_handler).handle(Matchers.<Message<String>>any());
         final String expectedData = OBJECT_MAPPER.writeValueAsString(
                 new SinkVerticle.DefaultEvent.Builder()
@@ -57,20 +60,21 @@ public class ClientVerticleTest extends TestVerticle {
                         .setGaugeSamples(TestClientVerticleImpl.GAUGE_SAMPLES)
                         .build());
 
-        vertx.eventBus().registerHandler(DEFAULT_SINK_ADDRESS, _handler);
-        container.deployVerticle(
+        _rule.vertx().eventBus().localConsumer(
+                DEFAULT_SINK_ADDRESS,
+                (Handler<Message<String>>) message -> context.assertEquals(expectedData, message.body()));
+
+        _rule.vertx().deployVerticle(
                 TARGET_CLIENT_VERTICLE_NAME,
-                asyncResult -> {
-                    VertxAssert.assertTrue(asyncResult.succeeded());
-                    Mockito.verify(_handler).handle(_argumentCaptor.capture());
-                    VertxAssert.assertEquals(expectedData, _argumentCaptor.getValue().body());
-                    VertxAssert.testComplete();
-                }
+                context.asyncAssertSuccess()
         );
     }
 
     @Mock
     private Handler<Message<String>> _handler;
+
+    @Rule
+    public RunTestOnContext _rule = new RunTestOnContext();
 
     @Captor
     private ArgumentCaptor<Message<String>> _argumentCaptor;
