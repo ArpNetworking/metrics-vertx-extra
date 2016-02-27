@@ -21,7 +21,7 @@ import com.arpnetworking.metrics.Units;
 import com.arpnetworking.metrics.vertx.EventBusSink;
 import com.arpnetworking.metrics.vertx.SinkVerticle;
 import com.google.common.collect.ImmutableMap;
-import org.vertx.java.platform.Verticle;
+import io.vertx.core.AbstractVerticle;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
-public class TestClientVerticleImpl extends Verticle {
+public class TestClientVerticleImpl extends AbstractVerticle {
 
     @Override
     public void start() {

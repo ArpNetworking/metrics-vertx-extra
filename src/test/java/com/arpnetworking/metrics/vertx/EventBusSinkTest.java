@@ -25,9 +25,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
+import io.vertx.core.eventbus.EventBus;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.vertx.java.core.eventbus.EventBus;
 
 import java.util.Collections;
 import java.util.List;

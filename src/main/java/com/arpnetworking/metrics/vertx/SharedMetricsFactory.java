@@ -17,7 +17,7 @@ package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.MetricsFactory;
-import org.vertx.java.core.shareddata.Shareable;
+import io.vertx.core.shareddata.Shareable;
 
 /**
  * An implementation of <code>MetricsFactory</code> that extends Vertx's <code>SharedData</code> which allows use in a

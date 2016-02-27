@@ -14,7 +14,10 @@ Vertx Extra
          alt="Maven Artifact">
 </a>
 
-Vertx compatible wrapper around the metrics Java client. 
+Vertx 3.x compatible wrapper around the metrics Java client. 
+
+For Vertx 2.x you must use the 0.4.1 version of this library.  There will be no further development in support of Vertx 2.x and future Vertx 3.x integration 
+will most likely move to Vertx's Metrics SPI.
 
 Instrumenting Your Vertx Application
 ------------------------------------
