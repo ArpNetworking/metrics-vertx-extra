@@ -85,7 +85,7 @@
 
   <properties>
     <!--Dependency versions-->
-    <findbugs.annotations.version>3.0.0</findbugs.annotations.version>
+    <findbugs.annotations.version>3.0.1</findbugs.annotations.version>
     <google.collections.version>1.0</google.collections.version>
     <jackson.version>2.6.2</jackson.version>
     <jsr305.version>3.0.0</jsr305.version>
@@ -179,7 +179,7 @@
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
-      <artifactId>annotations</artifactId>
+      <artifactId>findbugs-annotations</artifactId>
       <version>${findbugs.annotations.version}</version>
       <scope>provided</scope>
     </dependency>
