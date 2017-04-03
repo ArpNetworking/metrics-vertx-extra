@@ -38,9 +38,6 @@ import java.io.IOException;
  * @author Deepika Misra (deepika at groupon dot com)
  */
 public final class EventBusSink implements Sink {
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void record(final Event event) {
         try {
