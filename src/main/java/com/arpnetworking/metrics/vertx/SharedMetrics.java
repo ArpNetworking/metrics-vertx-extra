@@ -41,170 +41,112 @@ public class SharedMetrics implements Metrics, Shareable {
         _wrappedMetrics = wrappedMetrics;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Counter createCounter(final String name) {
         return _wrappedMetrics.createCounter(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void incrementCounter(final String name) {
         _wrappedMetrics.incrementCounter(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void incrementCounter(final String name, final long value) {
         _wrappedMetrics.incrementCounter(name, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void decrementCounter(final String name) {
         _wrappedMetrics.decrementCounter(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void decrementCounter(final String name, final long value) {
         _wrappedMetrics.decrementCounter(name, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void resetCounter(final String name) {
         _wrappedMetrics.resetCounter(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Timer createTimer(final String name) {
         return _wrappedMetrics.createTimer(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void startTimer(final String name) {
         _wrappedMetrics.startTimer(name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void stopTimer(final String name) {
         _wrappedMetrics.stopTimer(name);
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated See {@code Metrics} interface.
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
     public void setTimer(final String name, final long duration, final TimeUnit unit) {
         _wrappedMetrics.setTimer(name, duration, unit);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setTimer(final String name, final long duration, final Unit unit) {
         _wrappedMetrics.setTimer(name, duration, unit);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setGauge(final String name, final double value) {
         _wrappedMetrics.setGauge(name, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setGauge(final String name, final double value, final Unit unit) {
         _wrappedMetrics.setGauge(name, value, unit);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setGauge(final String name, final long value) {
         _wrappedMetrics.setGauge(name, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setGauge(final String name, final long value, final Unit unit) {
         _wrappedMetrics.setGauge(name, value, unit);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void addAnnotation(final String key, final String value) {
         _wrappedMetrics.addAnnotation(key, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void addAnnotations(final Map<String, String> map) {
         _wrappedMetrics.addAnnotations(map);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isOpen() {
         return _wrappedMetrics.isOpen();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() {
         _wrappedMetrics.close();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Nullable
     public Instant getOpenTime() {
         return _wrappedMetrics.getOpenTime();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Nullable
     public Instant getCloseTime() {

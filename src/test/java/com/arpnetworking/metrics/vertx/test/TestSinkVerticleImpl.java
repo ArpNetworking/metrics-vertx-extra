@@ -33,9 +33,6 @@ import java.util.List;
  */
 public final class TestSinkVerticleImpl extends SinkVerticle {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public List<Sink> createSinks() {
@@ -44,9 +41,6 @@ public final class TestSinkVerticleImpl extends SinkVerticle {
         return ImmutableList.of(sink);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Handler<Message<String>> initializeHandler() {
         return new SinkHandlerWithReply(_sinks);
@@ -65,9 +59,6 @@ public final class TestSinkVerticleImpl extends SinkVerticle {
             super(sinks);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         @SuppressWarnings("unchecked")
         @SuppressFBWarnings("DE_MIGHT_IGNORE")

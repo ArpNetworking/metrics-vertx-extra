@@ -28,7 +28,7 @@
   <packaging>jar</packaging>
   <name>Vertx Extra</name>
   <description>Extension to metrics-java-client which adapts the client for use in the Vert.x framework.</description>
-  <version>0.5.1-SNAPSHOT</version>
+  <version>0.7.0-SNAPSHOT</version>
 
   <licenses>
     <license>
@@ -40,18 +40,18 @@
   <developers>
     <developer>
       <id>brandonarp</id>
-      <email>brandonarp@gmail.com</email>
-      <organization>Arp Networking</organization>
-      <organizationUrl>http://www.arpnetworking.com</organizationUrl>
+      <email>brandon.arp@inscopemetrics.com</email>
+      <organization>Inscope Metrics</organization>
+      <organizationUrl>http://www.inscopemetrics.com</organizationUrl>
       <roles>
         <role>developer</role>
       </roles>
     </developer>
     <developer>
       <id>villekoskela</id>
-      <email>vkoskela@groupon.com</email>
-      <organization>Groupon</organization>
-      <organizationUrl>http://www.groupon.com</organizationUrl>
+      <email>ville.koskela@inscopemetrics.com</email>
+      <organization>Inscope Metrics</organization>
+      <organizationUrl>http://www.inscopemetrics.com</organizationUrl>
       <roles>
         <role>developer</role>
       </roles>
@@ -90,7 +90,7 @@
     <jackson.version>2.6.2</jackson.version>
     <jsr305.version>3.0.0</jsr305.version>
     <junit.version>4.12</junit.version>
-    <metrics.client.version>0.4.3</metrics.client.version>
+    <metrics.client.version>0.7.0</metrics.client.version>
     <mockito.version>1.10.19</mockito.version>
     <slf4j.version>1.7.12</slf4j.version>
     <vertx.version>3.2.1</vertx.version>

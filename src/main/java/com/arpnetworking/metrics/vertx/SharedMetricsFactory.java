@@ -39,9 +39,6 @@ public class SharedMetricsFactory implements MetricsFactory, Shareable {
         _wrappedMetricsFactory = wrappedMetricsFactory;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Metrics create() {
         return _wrappedMetricsFactory.create();

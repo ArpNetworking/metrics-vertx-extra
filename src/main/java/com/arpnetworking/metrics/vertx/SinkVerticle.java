@@ -63,9 +63,6 @@ import java.util.Objects;
  */
 public abstract class SinkVerticle extends AbstractVerticle {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void start() {
         _sinks = new ArrayList<>(createSinks());
@@ -112,9 +109,6 @@ public abstract class SinkVerticle extends AbstractVerticle {
             _sinks = sinks;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         @SuppressWarnings("unchecked")
         public void handle(final Message<String> message) {
@@ -223,41 +217,26 @@ public abstract class SinkVerticle extends AbstractVerticle {
      */
     public static final class DefaultEvent implements Event {
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Map<String, String> getAnnotations() {
             return Collections.unmodifiableMap(_annotations);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Map<String, List<Quantity>> getTimerSamples() {
             return Collections.unmodifiableMap(_timerSamples);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Map<String, List<Quantity>> getCounterSamples() {
             return Collections.unmodifiableMap(_counterSamples);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Map<String, List<Quantity>> getGaugeSamples() {
             return Collections.unmodifiableMap(_gaugeSamples);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean equals(final Object other) {
             if (this == other) {
@@ -273,17 +252,11 @@ public abstract class SinkVerticle extends AbstractVerticle {
                     && Objects.equals(_gaugeSamples, otherEvent._gaugeSamples);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int hashCode() {
             return Objects.hash(_annotations, _counterSamples, _timerSamples, _gaugeSamples);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public String toString() {
             return String.format(
@@ -404,25 +377,16 @@ public abstract class SinkVerticle extends AbstractVerticle {
             return new DefaultQuantity(value, unit);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Number getValue() {
             return _value;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Unit getUnit() {
             return _unit;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean equals(final Object other) {
             if (this == other) {
@@ -438,9 +402,6 @@ public abstract class SinkVerticle extends AbstractVerticle {
                    && Objects.equals(getValue(), otherQuantity.getValue());
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int hashCode() {
             return Objects.hash(_value, _unit);

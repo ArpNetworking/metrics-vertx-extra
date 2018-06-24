@@ -111,6 +111,7 @@ public class SharedMetricsTest {
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testSetTimerTimeUnit() throws Exception {
         _sharedMetrics.setTimer("name", 1234L, TimeUnit.MILLISECONDS);

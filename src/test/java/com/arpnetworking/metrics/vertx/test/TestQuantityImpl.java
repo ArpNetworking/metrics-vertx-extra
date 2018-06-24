@@ -25,17 +25,11 @@ import com.arpnetworking.metrics.Unit;
  */
 public final class TestQuantityImpl implements Quantity {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Number getValue() {
         return _value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Unit getUnit() {
         return _unit;
