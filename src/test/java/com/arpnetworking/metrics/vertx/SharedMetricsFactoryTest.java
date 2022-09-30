@@ -17,6 +17,7 @@ package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.MetricsFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,7 @@ public final class SharedMetricsFactoryTest {
         _sharedMetricsFactory = new SharedMetricsFactory(_mockFactory);
     }
 
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Itis what we're testing")
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullWrapper() {
         new SharedMetricsFactory(null);

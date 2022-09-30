@@ -40,13 +40,13 @@ public class DefaultEventTest {
         annotations.put("foo", "bar");
         final Map<String, List<Quantity>> timerSamples = new HashMap<>();
         timerSamples.put("timer", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1), null)));
+                SinkVerticle.DefaultQuantity.newInstance(1, null)));
         final Map<String, List<Quantity>> counterSamples = new HashMap<>();
         counterSamples.put("counter", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), null)));
+                SinkVerticle.DefaultQuantity.newInstance(1.23, null)));
         final Map<String, List<Quantity>> gaugeSamples = new HashMap<>();
         gaugeSamples.put("gauge", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), Units.BYTE)));
+                SinkVerticle.DefaultQuantity.newInstance(1.23, Units.BYTE)));
         // CHECKSTYLE.ON: IllegalInstantiation
         final Event event = new SinkVerticle.DefaultEvent.Builder()
                 .setAnnotations(annotations)

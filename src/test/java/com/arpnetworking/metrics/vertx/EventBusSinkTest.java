@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.vertx.core.eventbus.EventBus;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,6 +42,7 @@ import java.util.Map;
 public final class EventBusSinkTest {
 
     @Test(expected = IllegalArgumentException.class)
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Itis what we're testing")
     public void testConstructorWithNullEventBus() {
         new EventBusSink.Builder()
             .setEventBus(null)
@@ -49,6 +51,7 @@ public final class EventBusSinkTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Itis what we're testing")
     public void testConstructorWithNullSinkAddress() {
         new EventBusSink.Builder()
             .setEventBus(Mockito.mock(EventBus.class))

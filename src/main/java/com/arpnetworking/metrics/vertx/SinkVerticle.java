@@ -46,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * An abstract verticle responsible for writing the metrics data to the targeted sink. This verticle subscribes to the
@@ -373,7 +374,7 @@ public abstract class SinkVerticle extends AbstractVerticle {
          * @param unit An instance of <code>Unit</code>.
          * @return An instance of <code>Quantity</code>.
          */
-        public static Quantity newInstance(final Number value, final Unit unit) {
+        public static Quantity newInstance(final Number value, @Nullable  final Unit unit) {
             return new DefaultQuantity(value, unit);
         }
 
@@ -407,7 +408,7 @@ public abstract class SinkVerticle extends AbstractVerticle {
             return Objects.hash(_value, _unit);
         }
 
-        private DefaultQuantity(final Number value, final Unit unit) {
+        private DefaultQuantity(final Number value, @Nullable final Unit unit) {
             _value = value;
             _unit = unit;
         }

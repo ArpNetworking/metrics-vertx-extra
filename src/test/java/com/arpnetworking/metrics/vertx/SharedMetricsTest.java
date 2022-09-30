@@ -18,7 +18,6 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Counter;
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.Timer;
-
 import com.arpnetworking.metrics.Units;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
