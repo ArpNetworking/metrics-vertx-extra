@@ -87,7 +87,7 @@
     <!--Dependency versions-->
     <findbugs.annotations.version>3.0.1</findbugs.annotations.version>
     <google.collections.version>1.0</google.collections.version>
-    <jackson.version>2.13.4.1</jackson.version>
+    <jackson.version>2.13.4</jackson.version>
     <jsr305.version>3.0.0</jsr305.version>
     <junit.version>4.12</junit.version>
     <metrics.client.version>0.7.0</metrics.client.version>
