@@ -45,7 +45,6 @@ import java.util.Map;
  * @author Deepika Misra (deepika at groupon dot com)
  */
 @RunWith(VertxUnitRunner.class)
-@Ignore
 public class SinkVerticleTest {
 
     @Before
