@@ -28,6 +28,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import net.jcip.annotations.NotThreadSafe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +45,8 @@ import java.util.Map;
  * @author Deepika Misra (deepika at groupon dot com)
  */
 @RunWith(VertxUnitRunner.class)
+@NotThreadSafe
+
 public class SinkVerticleTest {
 
     @Before
@@ -57,6 +60,8 @@ public class SinkVerticleTest {
                 context.asyncAssertSuccess()
         );
     }
+
+
 
     @Test
     public void testValidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
@@ -92,7 +97,7 @@ public class SinkVerticleTest {
                 });
     }
 
-//    @Test
+    @Test
     public void testInvalidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, Object> dataMap = ImmutableMap.of("someKey", "someValue");
         _rule.vertx().eventBus().request(

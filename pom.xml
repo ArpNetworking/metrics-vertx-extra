@@ -95,6 +95,7 @@
     <slf4j.version>1.7.12</slf4j.version>
     <spotbugs-annotations.version>4.7.1</spotbugs-annotations.version>
     <vertx.version>3.9.4</vertx.version>
+    <jcip-annotations.version>1.0-1</jcip-annotations.version>
 
     <!-- Findbugs -->
     <findbugs.exclude>${project.basedir}/findbugs.exclude.xml</findbugs.exclude>
@@ -218,6 +219,12 @@
       <groupId>com.google.collections</groupId>
       <artifactId>google-collections</artifactId>
       <version>${google.collections.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.stephenc.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+      <version>${jcip-annotations.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
