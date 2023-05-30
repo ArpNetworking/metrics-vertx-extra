@@ -15,22 +15,15 @@
  */
 package com.arpnetworking.metrics.vertx;
 
-import com.arpnetworking.metrics.CompoundUnit;
 import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.impl.TsdUnit;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.vertx.core.eventbus.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 
 /**
  * This defines a sink that writes to the Vertx event bus.
@@ -65,48 +58,17 @@ public final class EventBusSink implements Sink {
 
     static {
         final SimpleModule module = new SimpleModule();
-        module.addSerializer(Unit.class, new UnitSerializer());
         OBJECT_MAPPER.registerModule(module);
     }
 
-    /* package private */ static final class UnitSerializer extends JsonSerializer<Unit> {
-        @Override
-        public void serialize(
-                final Unit unit,
-                final JsonGenerator jsonGenerator,
-                final SerializerProvider serializerProvider)
-                throws IOException {
-            if (unit instanceof CompoundUnit) {
-                // It's a compound unit
-                final CompoundUnit compoundUnit = (CompoundUnit) unit;
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeObjectField("numeratorUnits", compoundUnit.getNumeratorUnits());
-                jsonGenerator.writeObjectField("denominatorUnits", compoundUnit.getDenominatorUnits());
-
-                jsonGenerator.writeEndObject();
-            } else if (unit instanceof TsdUnit) {
-                // It's a base unit plus scale
-                // NOTE: This is a hack since this relies on an implementation specific serialized form!
-                final TsdUnit tsdUnit = (TsdUnit) unit;
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("baseUnit", tsdUnit.getBaseUnit().toString());
-                jsonGenerator.writeStringField("baseScale", tsdUnit.getBaseScale().toString());
-                jsonGenerator.writeEndObject();
-            } else {
-                // It's a base unit
-                jsonGenerator.writeString(unit.toString());
-            }
-        }
-    }
-
     /**
-     * Builder class for <code>EventBusSink</code>.
+     * Builder class for {@link EventBusSink}.
      */
     public static final class Builder {
         /**
-         * Builds an instance of <code>EventBusSink</code>.
+         * Builds an instance of {@link EventBusSink}.
          *
-         * @return An instance of <code>EventBusSink</code>.
+         * @return An instance of {@link EventBusSink}.
          */
         public EventBusSink build() {
             if (_eventBus == null) {
@@ -121,8 +83,8 @@ public final class EventBusSink implements Sink {
         /**
          * Sets the event bus attribute.
          *
-         * @param value An instance of <code>EventBus</code>.
-         * @return This instance of <code>Builder</code>.
+         * @param value An instance of {@link EventBus}.
+         * @return This instance of {@link Builder}.
          */
         public Builder setEventBus(final EventBus value) {
             _eventBus = value;
@@ -132,8 +94,8 @@ public final class EventBusSink implements Sink {
         /**
          * Sets the sink address attribute.
          *
-         * @param value An instance of <code>String</code>.
-         * @return This instance of <code>Builder</code>.
+         * @param value An instance of {@link String}.
+         * @return This instance of {@link Builder}.
          */
         public Builder setSinkAddress(final String value) {
             _sinkAddress = value;

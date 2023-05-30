@@ -18,46 +18,31 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.impl.BaseScale;
-import com.arpnetworking.metrics.impl.BaseUnit;
-import com.arpnetworking.metrics.impl.TsdCompoundUnit;
-import com.arpnetworking.metrics.impl.TsdUnit;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * An abstract verticle responsible for writing the metrics data to the targeted sink. This verticle subscribes to the
  * vertx event bus to receive the metrics data. This approach lets the client have multiple verticles write to the same
- * sink without having to share the <code>MetricsFactory</code> instance. Alternatively, in cases where the verticles
- * can share an instance of <code>MetricsFactory</code>, they can do so by defining an instance of the
- * <code>SharedMetricsFactory</code> in the shared data space of vertx.
+ * sink without having to share the {@link com.arpnetworking.metrics.MetricsFactory} instance. Alternatively, in cases where the verticles
+ * can share an instance of {@link com.arpnetworking.metrics.MetricsFactory}, they can do so by defining an instance of the
+ * {@link SharedMetricsFactory} in the shared data space of vertx.
  *
- * Implementations of this class should define the implementation for the <code>createSinks()</code> method, that
- * returns a not null <code>List</code> of sinks. The client may choose to override the implementation of the method
- * <code>initializeHandler()</code>. Implementations of this class should be deployed as a worker verticle
+ * Implementations of this class should define the implementation for the {@link #createSinks()} method, that
+ * returns a not null {@link List} of sinks. The client may choose to override the implementation of the method
+ * {@link #initializeHandler()}. Implementations of this class should be deployed as a worker verticle
  * since writing to a sink is a blocking operation. The config for this verticle should contain the "sinkAddress" key.
  *
  * @author Deepika Misra (deepika at groupon dot com)
@@ -76,15 +61,15 @@ public abstract class SinkVerticle extends AbstractVerticle {
     /**
      * Initializes the member sinks with a list of sinks to write to.
      *
-     * @return A <code>List</code> of sinks.
+     * @return A {@link List} of sinks.
      */
     protected abstract List<Sink> createSinks();
 
     /**
      * Initializes the member handler with an appropriate message handler. The default implementation is to initialize
-     * with the <code>SinkHandler</code> instance.
+     * with the {@link SinkHandler} instance.
      *
-     * @return An instance of <code>Handler&lt;Message&lt;String&gt;&gt;</code>.
+     * @return An instance of {@link Handler}.
      */
     protected Handler<Message<String>> initializeHandler() {
         return new SinkHandler(_sinks);
@@ -97,14 +82,14 @@ public abstract class SinkVerticle extends AbstractVerticle {
     private static final String DEFAULT_SINK_ADDRESS = "metrics.sink.default";
 
     /**
-     * Event bus message handler class for <code>SinkVerticle</code>.
+     * Event bus message handler class for {@link SinkVerticle}.
      */
     protected static class SinkHandler implements Handler<Message<String>> {
 
         /**
          * Public constructor.
          *
-         * @param sinks A <code>List</code> of sinks.
+         * @param sinks A {@link List} of sinks.
          */
         public SinkHandler(final List<Sink> sinks) {
             _sinks = sinks;
@@ -148,73 +133,14 @@ public abstract class SinkVerticle extends AbstractVerticle {
         static {
             final SimpleModule module = new SimpleModule();
             module.addAbstractTypeMapping(Quantity.class, DefaultQuantity.class);
-            module.addDeserializer(Unit.class, new UnitDeserializer());
             OBJECT_MAPPER.registerModule(module);
         }
 
-        private static final class UnitDeserializer extends JsonDeserializer<Unit> {
-            @Override
-            public Unit deserialize(
-                    final JsonParser jsonParser,
-                    final DeserializationContext deserializationContext) throws IOException {
-                return readUnit(jsonParser.readValueAs(JsonNode.class));
-            }
 
-            private static Unit readUnit(final JsonNode node) {
-                if (node instanceof TextNode) {
-                    // This is a base unit
-                    return readBaseUnit((TextNode) node);
-                } else if (node instanceof ObjectNode) {
-                    // This is a scaled or compound unit
-                    final ObjectNode objectNode = (ObjectNode) node;
-                    if (objectNode.has("numeratorUnits") || objectNode.has("denominatorUnits")) {
-                        // This is a compound unit
-                        final List<Unit> numeratorUnits = new ArrayList<>();
-                        final List<Unit> denominatorUnits = new ArrayList<>();
-                        if (objectNode.has("numeratorUnits")) {
-                            readUnitArray(numeratorUnits, objectNode.get("numeratorUnits"));
-                        }
-                        if (objectNode.has("denominatorUnits")) {
-                            readUnitArray(denominatorUnits, objectNode.get("denominatorUnits"));
-                        }
-                        return new TsdCompoundUnit.Builder()
-                                .setNumeratorUnits(numeratorUnits)
-                                .setDenominatorUnits(denominatorUnits)
-                                .build();
-                    } else if (objectNode.has("baseUnit") || objectNode.has("baseScale")) {
-                        // This is a scaled unit
-                        final TsdUnit.Builder tsdUnitBuilder = new TsdUnit.Builder();
-                        if (objectNode.has("baseUnit")) {
-                            tsdUnitBuilder.setBaseUnit(BaseUnit.valueOf(objectNode.get("baseUnit").asText()));
-                        }
-                        if (objectNode.has("baseScale")) {
-                            tsdUnitBuilder.setScale(BaseScale.valueOf(objectNode.get("baseScale").asText()));
-                        }
-                        return tsdUnitBuilder.build();
-                    }
-                }
-                throw new IllegalArgumentException("Expected unit; found: " + node);
-            }
-
-            private static Unit readBaseUnit(final TextNode node) {
-                return BaseUnit.valueOf(node.textValue());
-            }
-
-            private static void readUnitArray(final List<Unit> units, final JsonNode node) {
-                if (node.isArray()) {
-                    final ArrayNode arrayNode = (ArrayNode) node;
-                    for (final Iterator<JsonNode> iterator = arrayNode.elements(); iterator.hasNext();) {
-                        units.add(readUnit(iterator.next()));
-                    }
-                } else {
-                    throw new IllegalArgumentException("Expected unit list; found: " + node);
-                }
-            }
-        }
     }
 
     /**
-     * Default implementation of <code>Event</code> for deserialization purposes.
+     * Default implementation of {@link Event} for deserialization purposes.
      */
     public static final class DefaultEvent implements Event {
 
@@ -281,14 +207,14 @@ public abstract class SinkVerticle extends AbstractVerticle {
         private final Map<String, List<Quantity>> _gaugeSamples;
 
         /**
-         * Builder implementation for <code>TsdEvent</code>.
+         * Builder implementation for {@link com.arpnetworking.metrics.impl.TsdEvent}.
          */
         public static final class Builder {
 
             /**
-             * Builds an instance of <code>TsdEvent</code>.
+             * Builds an instance of {@link com.arpnetworking.metrics.impl.TsdEvent}.
              *
-             * @return An instance of <code>TsdEvent</code>.
+             * @return An instance of {@link com.arpnetworking.metrics.impl.TsdEvent}.
              */
             public Event build() {
                 if (_annotations == null) {
@@ -309,8 +235,8 @@ public abstract class SinkVerticle extends AbstractVerticle {
             /**
              * Sets the annotations.
              *
-             * @param value A <code>Map</code> for annotations.
-             * @return This instance of <code>Builder</code>.
+             * @param value A {@link Map} for annotations.
+             * @return This instance of {@link Builder}.
              */
             public Builder setAnnotations(final Map<String, String> value) {
                 _annotations = Collections.unmodifiableMap(value);
@@ -320,8 +246,8 @@ public abstract class SinkVerticle extends AbstractVerticle {
             /**
              * Sets the timer samples.
              *
-             * @param value A <code>Map</code> for timer samples.
-             * @return This instance of <code>Builder</code>.
+             * @param value A {@link Map} for timer samples.
+             * @return This instance of {@link Builder}.
              */
             public Builder setTimerSamples(final Map<String, List<Quantity>> value) {
                 _timerSamples = Collections.unmodifiableMap(value);
@@ -331,8 +257,8 @@ public abstract class SinkVerticle extends AbstractVerticle {
             /**
              * Sets the counter samples.
              *
-             * @param value A <code>Map</code> for counter samples.
-             * @return This instance of <code>Builder</code>.
+             * @param value A {@link Map} for counter samples.
+             * @return This instance of {@link Builder}.
              */
             public Builder setCounterSamples(final Map<String, List<Quantity>> value) {
                 _counterSamples = Collections.unmodifiableMap(value);
@@ -342,8 +268,8 @@ public abstract class SinkVerticle extends AbstractVerticle {
             /**
              * Sets the gauge samples.
              *
-             * @param value A <code>Map</code> for gauge samples.
-             * @return This instance of <code>Builder</code>.
+             * @param value A {@link Map} for gauge samples.
+             * @return This instance of {@link Builder}.
              */
             public Builder setGaugeSamples(final Map<String, List<Quantity>> value) {
                 _gaugeSamples = Collections.unmodifiableMap(value);
@@ -358,7 +284,7 @@ public abstract class SinkVerticle extends AbstractVerticle {
     }
 
     /**
-     * Default implementation of <code>Quantity</code> for deserialization purposes.
+     * Default implementation of {@link Quantity} for deserialization purposes.
      */
     public static class DefaultQuantity implements Quantity {
 
@@ -370,12 +296,11 @@ public abstract class SinkVerticle extends AbstractVerticle {
         /**
          * Static factory method.
          *
-         * @param value An instance of <code>Number</code>.
-         * @param unit An instance of <code>Unit</code>.
-         * @return An instance of <code>Quantity</code>.
+         * @param value An instance of {@link Number}.
+         * @return An instance of {@link Quantity}.
          */
-        public static Quantity newInstance(final Number value, @Nullable  final Unit unit) {
-            return new DefaultQuantity(value, unit);
+        public static Quantity newInstance(final Number value) {
+            return new DefaultQuantity(value);
         }
 
         @Override
@@ -383,10 +308,6 @@ public abstract class SinkVerticle extends AbstractVerticle {
             return _value;
         }
 
-        @Override
-        public Unit getUnit() {
-            return _unit;
-        }
 
         @Override
         public boolean equals(final Object other) {
@@ -399,23 +320,19 @@ public abstract class SinkVerticle extends AbstractVerticle {
             }
 
             final DefaultQuantity otherQuantity = (DefaultQuantity) other;
-            return Objects.equals(getUnit(), otherQuantity.getUnit())
-                   && Objects.equals(getValue(), otherQuantity.getValue());
+            return Objects.equals(getValue(), otherQuantity.getValue());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(_value, _unit);
+            return Objects.hash(_value);
         }
 
-        private DefaultQuantity(final Number value, @Nullable final Unit unit) {
+        private DefaultQuantity(final Number value) {
             _value = value;
-            _unit = unit;
         }
 
         @JsonProperty("value")
         private Number _value;
-        @JsonProperty("unit")
-        private Unit _unit;
     }
 }

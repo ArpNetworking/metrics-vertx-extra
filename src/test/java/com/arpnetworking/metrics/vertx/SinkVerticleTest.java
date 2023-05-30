@@ -16,8 +16,6 @@
 package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Quantity;
-import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.Units;
 import com.arpnetworking.metrics.vertx.test.TestSinkVerticleImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +28,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import net.jcip.annotations.NotThreadSafe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,25 +40,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests <code>SinkVerticle</code> class.
+ * Tests {@link SinkVerticle} class.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
 @RunWith(VertxUnitRunner.class)
+@NotThreadSafe
+
 public class SinkVerticleTest {
 
     @Before
     public void setUp(final TestContext context) {
         _rule.vertx().deployVerticle(
-                TARGET_WORKER_VERTICLE_NAME,
+                TestSinkVerticleImpl::new,
                 new DeploymentOptions()
                         .setConfig(new JsonObject(Collections.singletonMap("sinkAddress", SINK_ADDRESS)))
                         .setInstances(1)
-                        .setWorker(true)
-                        .setMultiThreaded(false),
+                        .setWorker(true),
                 context.asyncAssertSuccess()
         );
     }
+
+
 
     @Test
     public void testValidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
@@ -67,17 +69,17 @@ public class SinkVerticleTest {
         final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
                 "timerSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(100, Units.BIT),
-                        SinkVerticle.DefaultQuantity.newInstance(40, Units.GIGABIT)));
+                        SinkVerticle.DefaultQuantity.newInstance(100),
+                        SinkVerticle.DefaultQuantity.newInstance(40)));
         final Map<String, List<Quantity>> counterSampleMap = ImmutableMap.of(
                 "counterSamples",
                 Collections.singletonList(
-                        SinkVerticle.DefaultQuantity.newInstance(400, Units.BITS_PER_SECOND)));
+                        SinkVerticle.DefaultQuantity.newInstance(400)));
         final Map<String, List<Quantity>> gaugeSampleMap = ImmutableMap.of(
                 "gaugeSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(1000, Units.MILLISECOND),
-                        SinkVerticle.DefaultQuantity.newInstance(5, Units.MINUTE)));
+                        SinkVerticle.DefaultQuantity.newInstance(1000),
+                        SinkVerticle.DefaultQuantity.newInstance(5)));
         final String data = OBJECT_MAPPER.writeValueAsString(
                 new SinkVerticle.DefaultEvent.Builder()
                         .setAnnotations(annotationMap)
@@ -85,11 +87,12 @@ public class SinkVerticleTest {
                         .setCounterSamples(counterSampleMap)
                         .setGaugeSamples(gaugeSampleMap)
                         .build());
-        _rule.vertx().eventBus().send(
+        _rule.vertx().eventBus().request(
                 SINK_ADDRESS,
                 data,
                 (AsyncResult<Message<String>> reply) -> {
                     // TODO(vkoskela): The hook should get the deserialized data and compare it with equals().
+                    System.err.println(reply.result());
                     context.assertEquals(data, reply.result().body());
                 });
     }
@@ -97,10 +100,11 @@ public class SinkVerticleTest {
     @Test
     public void testInvalidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, Object> dataMap = ImmutableMap.of("someKey", "someValue");
-        _rule.vertx().eventBus().send(
+        _rule.vertx().eventBus().request(
                 SINK_ADDRESS,
                 OBJECT_MAPPER.writeValueAsString(dataMap),
                 (AsyncResult<Message<String>> reply) -> {
+                    System.err.println(reply.result());
                     context.assertNull(reply.result());
                     context.fail("No reply should have been sent to an invalid message");
                 });
@@ -109,7 +113,6 @@ public class SinkVerticleTest {
         Thread.sleep(1000);
     }
 
-    private static final String TARGET_WORKER_VERTICLE_NAME = TestSinkVerticleImpl.class.getCanonicalName();
     private static final String SINK_ADDRESS = "sink.address.sinkVerticleTest";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -118,7 +121,6 @@ public class SinkVerticleTest {
 
     static {
         final SimpleModule module = new SimpleModule();
-        module.addSerializer(Unit.class, new EventBusSink.UnitSerializer());
         OBJECT_MAPPER.registerModule(module);
     }
 }

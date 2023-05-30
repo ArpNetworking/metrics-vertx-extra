@@ -18,6 +18,7 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.MetricsFactory;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Tests <code>SharedMetricsFactory</code>.
+ * Tests {@link SharedMetricsFactory}.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
@@ -34,9 +35,14 @@ public final class SharedMetricsFactoryTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        _mocks = MockitoAnnotations.openMocks(this);
         Mockito.doReturn(_mockMetrics).when(_mockFactory).create();
         _sharedMetricsFactory = new SharedMetricsFactory(_mockFactory);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        _mocks.close();
     }
 
     @SuppressFBWarnings(value = "NP_NONNULL_PARAM_VIOLATION", justification = "Itis what we're testing")
@@ -55,5 +61,6 @@ public final class SharedMetricsFactoryTest {
     private MetricsFactory _mockFactory;
     @Mock
     private Metrics _mockMetrics;
+    private AutoCloseable _mocks;
     private SharedMetricsFactory _sharedMetricsFactory = null;
 }

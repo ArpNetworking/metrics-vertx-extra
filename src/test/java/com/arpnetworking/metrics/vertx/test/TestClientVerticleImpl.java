@@ -17,7 +17,6 @@ package com.arpnetworking.metrics.vertx.test;
 
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.Units;
 import com.arpnetworking.metrics.vertx.EventBusSink;
 import com.arpnetworking.metrics.vertx.SinkVerticle;
 import com.google.common.collect.ImmutableMap;
@@ -29,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Test verticle to integrate with the <code>EventBusSink</code>.
+ * Test verticle to integrate with the {@link EventBusSink}.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
@@ -59,21 +58,21 @@ public class TestClientVerticleImpl extends AbstractVerticle {
     public static final Map<String, List<Quantity>> TIMER_SAMPLES = ImmutableMap.of(
             "timerSamples",
             Arrays.asList(
-                    SinkVerticle.DefaultQuantity.newInstance(100, Units.MEGABYTE),
-                    SinkVerticle.DefaultQuantity.newInstance(40, Units.GIGABYTE)));
+                    SinkVerticle.DefaultQuantity.newInstance(100),
+                    SinkVerticle.DefaultQuantity.newInstance(40)));
     /**
      * Static counter samples map.
      */
     public static final Map<String, List<Quantity>> COUNTER_SAMPLES = ImmutableMap.of(
             "counterSamples",
             Collections.singletonList(
-                    SinkVerticle.DefaultQuantity.newInstance(400, Units.MILLISECOND)));
+                    SinkVerticle.DefaultQuantity.newInstance(400)));
     /**
      * Static gauge samples map.
      */
     public static final Map<String, List<Quantity>> GAUGE_SAMPLES = ImmutableMap.of(
             "gaugeSamples",
             Arrays.asList(
-                    SinkVerticle.DefaultQuantity.newInstance(1000, Units.MILLISECOND),
-                    SinkVerticle.DefaultQuantity.newInstance(5, Units.MINUTE)));
+                    SinkVerticle.DefaultQuantity.newInstance(1000),
+                    SinkVerticle.DefaultQuantity.newInstance(5)));
 }

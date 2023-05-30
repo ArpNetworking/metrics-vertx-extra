@@ -18,7 +18,7 @@
   <parent>
     <groupId>com.arpnetworking.build</groupId>
     <artifactId>arpnetworking-parent-pom</artifactId>
-    <version>1.1.10</version>
+    <version>3.2.2</version>
     <relativePath />
   </parent>
 
@@ -88,13 +88,14 @@
     <findbugs.annotations.version>3.0.1</findbugs.annotations.version>
     <google.collections.version>1.0</google.collections.version>
     <jackson.version>2.14.2</jackson.version>
-    <jsr305.version>3.0.0</jsr305.version>
+    <jsr305.version>3.0.2</jsr305.version>
     <junit.version>4.13.2</junit.version>
-    <metrics.client.version>0.7.0</metrics.client.version>
-    <mockito.version>1.10.19</mockito.version>
+    <metrics.client.version>0.12.0</metrics.client.version>
+    <mockito.version>5.3.1</mockito.version>
     <slf4j.version>1.7.12</slf4j.version>
-    <vertx.version>3.2.1</vertx.version>
-    <vertx.testtools.version>2.0.3-final</vertx.testtools.version>
+    <spotbugs-annotations.version>4.7.1</spotbugs-annotations.version>
+    <vertx.version>3.9.4</vertx.version>
+    <jcip-annotations.version>1.0-1</jcip-annotations.version>
 
     <!-- Findbugs -->
     <findbugs.exclude>${project.basedir}/findbugs.exclude.xml</findbugs.exclude>
@@ -198,7 +199,7 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
       <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
@@ -209,9 +210,21 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>${spotbugs-annotations.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.google.collections</groupId>
       <artifactId>google-collections</artifactId>
       <version>${google.collections.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.stephenc.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+      <version>${jcip-annotations.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

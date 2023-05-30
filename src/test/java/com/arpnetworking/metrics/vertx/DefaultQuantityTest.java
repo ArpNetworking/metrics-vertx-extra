@@ -16,13 +16,11 @@
 package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Quantity;
-import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.Units;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests for <code>SinkVerticle.DefaultQuantity</code>.
+ * Tests for {@link com.arpnetworking.metrics.vertx.SinkVerticle.DefaultQuantity}.
  *
  * @author Ville Koskela (vkoskela at groupon dot com)
  */
@@ -31,41 +29,37 @@ public class DefaultQuantityTest {
     @Test
     public void testQuantity() {
         final Long expectedValue = Long.valueOf(1);
-        final Unit expectedUnit = Units.BYTE;
-        final Quantity q = SinkVerticle.DefaultQuantity.newInstance(expectedValue, expectedUnit);
+        final Quantity q = SinkVerticle.DefaultQuantity.newInstance(expectedValue);
         Assert.assertEquals(expectedValue, q.getValue());
-        Assert.assertEquals(expectedUnit, q.getUnit());
     }
 
     @Test
     public void testEquals() {
-        final Quantity quantity = SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1), Units.BYTE);
+        final Quantity quantity = SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1));
         Assert.assertTrue(quantity.equals(quantity));
 
         Assert.assertTrue(
-                SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1), Units.BYTE).equals(
-                        SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1), Units.BYTE)));
+                SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1)).equals(
+                        SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1))));
 
         Assert.assertFalse(quantity.equals(null));
         Assert.assertFalse(quantity.equals("This is a String"));
 
-        final Quantity differentQuantity1 = SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1), Units.BIT);
-        final Quantity differentQuantity2 = SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(2), Units.BYTE);
+        final Quantity differentQuantity2 = SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(2));
 
-        Assert.assertFalse(quantity.equals(differentQuantity1));
         Assert.assertFalse(quantity.equals(differentQuantity2));
     }
 
     @Test
     public void testHashCode() {
         Assert.assertEquals(
-                SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1), Units.BYTE).hashCode(),
-                SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1), Units.BYTE).hashCode());
+                SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1)).hashCode(),
+                SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1)).hashCode());
     }
 
     @Test
     public void testToString() {
-        final String asString = SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1), Units.BYTE).toString();
+        final String asString = SinkVerticle.DefaultQuantity.newInstance(Long.valueOf(1)).toString();
         Assert.assertNotNull(asString);
         Assert.assertFalse(asString.isEmpty());
     }
