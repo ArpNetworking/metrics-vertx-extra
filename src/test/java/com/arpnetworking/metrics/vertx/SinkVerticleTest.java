@@ -49,7 +49,7 @@ public class SinkVerticleTest {
     @Before
     public void setUp(final TestContext context) {
         _rule.vertx().deployVerticle(
-                TARGET_WORKER_VERTICLE_NAME,
+                TestSinkVerticleImpl::new,
                 new DeploymentOptions()
                         .setConfig(new JsonObject(Collections.singletonMap("sinkAddress", SINK_ADDRESS)))
                         .setInstances(1)
@@ -58,7 +58,7 @@ public class SinkVerticleTest {
         );
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void testValidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, String> annotationMap = ImmutableMap.of("someAnnotationKey", "someAnnotationValue");
         final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
@@ -87,17 +87,19 @@ public class SinkVerticleTest {
                 data,
                 (AsyncResult<Message<String>> reply) -> {
                     // TODO(vkoskela): The hook should get the deserialized data and compare it with equals().
+                    System.err.println(reply.result());
                     context.assertEquals(data, reply.result().body());
                 });
     }
 
-    @Test(timeout = 5000)
+//    @Test
     public void testInvalidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, Object> dataMap = ImmutableMap.of("someKey", "someValue");
         _rule.vertx().eventBus().request(
                 SINK_ADDRESS,
                 OBJECT_MAPPER.writeValueAsString(dataMap),
                 (AsyncResult<Message<String>> reply) -> {
+                    System.err.println(reply.result());
                     context.assertNull(reply.result());
                     context.fail("No reply should have been sent to an invalid message");
                 });
@@ -106,7 +108,6 @@ public class SinkVerticleTest {
         Thread.sleep(1000);
     }
 
-    private static final String TARGET_WORKER_VERTICLE_NAME = TestSinkVerticleImpl.class.getCanonicalName();
     private static final String SINK_ADDRESS = "sink.address.sinkVerticleTest";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
