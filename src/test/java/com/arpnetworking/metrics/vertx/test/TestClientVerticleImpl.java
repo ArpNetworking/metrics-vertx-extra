@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Test verticle to integrate with the <code>EventBusSink</code>.
+ * Test verticle to integrate with the {@link EventBusSink}.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */

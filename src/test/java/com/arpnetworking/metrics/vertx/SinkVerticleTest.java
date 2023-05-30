@@ -29,7 +29,6 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests <code>SinkVerticle</code> class.
+ * Tests {@link SinkVerticle} class.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
@@ -59,7 +58,7 @@ public class SinkVerticleTest {
         );
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void testValidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, String> annotationMap = ImmutableMap.of("someAnnotationKey", "someAnnotationValue");
         final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
@@ -92,7 +91,7 @@ public class SinkVerticleTest {
                 });
     }
 
-//    @Test
+    @Test(timeout = 5000)
     public void testInvalidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, Object> dataMap = ImmutableMap.of("someKey", "someValue");
         _rule.vertx().eventBus().request(

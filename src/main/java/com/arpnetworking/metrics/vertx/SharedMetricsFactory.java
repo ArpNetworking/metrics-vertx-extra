@@ -20,7 +20,7 @@ import com.arpnetworking.metrics.MetricsFactory;
 import io.vertx.core.shareddata.Shareable;
 
 /**
- * An implementation of <code>MetricsFactory</code> that extends Vertx's <code>SharedData</code> which allows use in a
+ * An implementation of {@link MetricsFactory} that extends Vertx's {@link io.vertx.core.shareddata.SharedData} which allows use in a
  * shared data map.
  *
  * @author Deepika Misra (deepika at groupon dot com)

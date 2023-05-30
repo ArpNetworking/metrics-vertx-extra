@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 /**
- * Metrics object that extends Vertx's <code>SharedData</code> object which allows use in a shared data map.
+ * Metrics object that extends Vertx's {@link io.vertx.core.shareddata.SharedData} object which allows use in a shared data map.
  *
  * @author Gil Markham (gil at groupon dot com)
  * @since 0.2.1

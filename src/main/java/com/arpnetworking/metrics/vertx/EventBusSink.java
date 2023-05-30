@@ -62,13 +62,13 @@ public final class EventBusSink implements Sink {
     }
 
     /**
-     * Builder class for <code>EventBusSink</code>.
+     * Builder class for {@link EventBusSink}.
      */
     public static final class Builder {
         /**
-         * Builds an instance of <code>EventBusSink</code>.
+         * Builds an instance of {@link EventBusSink}.
          *
-         * @return An instance of <code>EventBusSink</code>.
+         * @return An instance of {@link EventBusSink}.
          */
         public EventBusSink build() {
             if (_eventBus == null) {
@@ -83,8 +83,8 @@ public final class EventBusSink implements Sink {
         /**
          * Sets the event bus attribute.
          *
-         * @param value An instance of <code>EventBus</code>.
-         * @return This instance of <code>Builder</code>.
+         * @param value An instance of {@link EventBus}.
+         * @return This instance of {@link Builder}.
          */
         public Builder setEventBus(final EventBus value) {
             _eventBus = value;
@@ -94,8 +94,8 @@ public final class EventBusSink implements Sink {
         /**
          * Sets the sink address attribute.
          *
-         * @param value An instance of <code>String</code>.
-         * @return This instance of <code>Builder</code>.
+         * @param value An instance of {@link String}.
+         * @return This instance of {@link Builder}.
          */
         public Builder setSinkAddress(final String value) {
             _sinkAddress = value;

@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests the <code>SharedMetrics</code> class.
+ * Tests the {@link SharedMetrics} class.
  *
  * @author Gil Markham (gil at groupon dot com)
  * @since 0.2.1

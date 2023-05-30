@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests the <code>EventBusSink</code> class.
+ * Tests the {@link EventBusSink} class.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */

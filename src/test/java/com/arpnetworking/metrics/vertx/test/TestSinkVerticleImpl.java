@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 import java.util.List;
 
 /**
- * This is a trivial implementation of the abstract verticle <code>SinkVerticle</code>.
+ * This is a trivial implementation of the abstract verticle {@link SinkVerticle}.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
@@ -47,13 +47,13 @@ public final class TestSinkVerticleImpl extends SinkVerticle {
     }
 
     /**
-     * An extension of <code>SinkHandler</code> that sends a reply.
+     * An extension of {@link com.arpnetworking.metrics.vertx.SinkVerticle.SinkHandler} that sends a reply.
      */
     public static final class SinkHandlerWithReply extends SinkHandler {
         /**
          * Public constructor.
          *
-         * @param sinks A <code>List</code> of sinks to be written to.
+         * @param sinks A {@link List} of sinks to be written to.
          */
         public SinkHandlerWithReply(final List<Sink> sinks) {
             super(sinks);

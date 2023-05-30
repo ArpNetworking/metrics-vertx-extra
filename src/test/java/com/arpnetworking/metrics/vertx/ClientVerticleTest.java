@@ -37,7 +37,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Integration tests for client verticle writing to sinks through <code>EventBusSink</code> and <code>SinkVerticle</code>.
+ * Integration tests for client verticle writing to sinks through {@link EventBusSink} and {@link SinkVerticle}.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */

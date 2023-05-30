@@ -18,7 +18,7 @@ package com.arpnetworking.metrics.vertx.test;
 import com.arpnetworking.metrics.Quantity;
 
 /**
- * Test implementation of <code>Quantity</code> interface.
+ * Test implementation of {@link Quantity} interface.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */
@@ -37,14 +37,14 @@ public final class TestQuantityImpl implements Quantity {
     private final Number _value;
 
     /**
-     * Builder implementation of <code>TestQuantityImpl</code>.
+     * Builder implementation of {@link TestQuantityImpl}.
      */
     public static final class Builder {
 
         /**
-         * Builds an instance of <code>TestQuantityImpl</code>.
+         * Builds an instance of {@link TestQuantityImpl}.
          *
-         * @return A new instance of <code>TestQuantityImpl</code>.
+         * @return A new instance of {@link TestQuantityImpl}.
          */
         public TestQuantityImpl build() {
             return new TestQuantityImpl(this);
@@ -53,8 +53,8 @@ public final class TestQuantityImpl implements Quantity {
         /**
          * Sets the value attribute.
          *
-         * @param value An instance of <code>Number</code>.
-         * @return This instance of <code>Builder</code>.
+         * @param value An instance of {@link Number}.
+         * @return This instance of {@link Builder}.
          */
         public Builder setValue(final Number value) {
             _value = value;

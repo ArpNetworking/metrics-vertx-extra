@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests for <code>SinkVerticle.DefaultQuantity</code>.
+ * Tests for {@link com.arpnetworking.metrics.vertx.SinkVerticle.DefaultQuantity}.
  *
  * @author Ville Koskela (vkoskela at groupon dot com)
  */

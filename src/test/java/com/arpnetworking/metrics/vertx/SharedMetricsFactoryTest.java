@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Tests <code>SharedMetricsFactory</code>.
+ * Tests {@link SharedMetricsFactory}.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */

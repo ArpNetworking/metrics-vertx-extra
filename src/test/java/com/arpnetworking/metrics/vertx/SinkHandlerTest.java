@@ -35,7 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests the inner handler class <code>SinkHandler</code> for <code>SinkVerticle</code>.
+ * Tests the inner handler class {@link com.arpnetworking.metrics.vertx.SinkVerticle.SinkHandler} for
+ * {@link SinkVerticle}.
  *
  * @author Deepika Misra (deepika at groupon dot com)
  */

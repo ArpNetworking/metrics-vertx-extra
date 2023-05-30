@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests for <code>SinkVerticle.DefaultEvent</code>.
+ * Tests for {@link com.arpnetworking.metrics.vertx.SinkVerticle.DefaultEvent}.
  *
  * @author Ville Koskela (vkoskela at groupon dot com)
  */
