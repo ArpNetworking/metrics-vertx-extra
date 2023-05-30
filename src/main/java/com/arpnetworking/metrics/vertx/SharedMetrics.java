@@ -18,7 +18,6 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Counter;
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.Timer;
-import com.arpnetworking.metrics.Unit;
 import io.vertx.core.shareddata.Shareable;
 
 import java.time.Instant;
@@ -97,28 +96,13 @@ public class SharedMetrics implements Metrics, Shareable {
     }
 
     @Override
-    public void setTimer(final String name, final long duration, final Unit unit) {
-        _wrappedMetrics.setTimer(name, duration, unit);
-    }
-
-    @Override
     public void setGauge(final String name, final double value) {
         _wrappedMetrics.setGauge(name, value);
     }
 
     @Override
-    public void setGauge(final String name, final double value, final Unit unit) {
-        _wrappedMetrics.setGauge(name, value, unit);
-    }
-
-    @Override
     public void setGauge(final String name, final long value) {
         _wrappedMetrics.setGauge(name, value);
-    }
-
-    @Override
-    public void setGauge(final String name, final long value, final Unit unit) {
-        _wrappedMetrics.setGauge(name, value, unit);
     }
 
     @Override

@@ -17,10 +17,6 @@ package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.Units;
-import com.arpnetworking.metrics.impl.BaseScale;
-import com.arpnetworking.metrics.impl.BaseUnit;
-import com.arpnetworking.metrics.impl.TsdCompoundUnit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
@@ -47,29 +43,30 @@ public final class SinkHandlerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        _mocks = MockitoAnnotations.openMocks(this);
         Mockito.doReturn(SINK_ADDRESS).when(_message).address();
         final List<Sink> sinks = ImmutableList.of(_mockSink);
         _handler = new SinkVerticle.SinkHandler(sinks);
     }
 
     @After
-    public void teardown() {
+    public void teardown() throws Exception {
         _mockSink = null;
         _message = null;
+        _mocks.close();
     }
 
     @Test
     public void testHandleWithNullMessage() {
         _handler.handle(null);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
     public void testHandleWithMessageWithNullBody() {
         Mockito.doReturn(null).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -83,7 +80,7 @@ public final class SinkHandlerTest {
                 Collections.emptyMap()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -97,7 +94,7 @@ public final class SinkHandlerTest {
                 Collections.emptyMap()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -111,7 +108,7 @@ public final class SinkHandlerTest {
                 Collections.emptyMap()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -125,7 +122,7 @@ public final class SinkHandlerTest {
                 Collections.emptyMap()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -156,17 +153,17 @@ public final class SinkHandlerTest {
         final Map<String, List<Quantity>> timerSampleMap = ImmutableMap.of(
                 "timerSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(100, Units.MEGABYTE),
-                        SinkVerticle.DefaultQuantity.newInstance(40, Units.GIGABYTE)));
+                        SinkVerticle.DefaultQuantity.newInstance(100),
+                        SinkVerticle.DefaultQuantity.newInstance(40)));
         final Map<String, List<Quantity>> counterSampleMap = ImmutableMap.of(
                 "counterSamples",
                 Collections.singletonList(
-                        SinkVerticle.DefaultQuantity.newInstance(400, Units.MILLISECOND)));
+                        SinkVerticle.DefaultQuantity.newInstance(400)));
         final Map<String, List<Quantity>> gaugeSampleMap = ImmutableMap.of(
                 "gaugeSamples",
                 Arrays.asList(
-                        SinkVerticle.DefaultQuantity.newInstance(1000, Units.MILLISECOND),
-                        SinkVerticle.DefaultQuantity.newInstance(5, Units.MINUTE)));
+                        SinkVerticle.DefaultQuantity.newInstance(1000),
+                        SinkVerticle.DefaultQuantity.newInstance(5)));
         final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
                 ANNOTATIONS_KEY,
                 annotationMap,
@@ -200,10 +197,10 @@ public final class SinkHandlerTest {
                 ImmutableMap.of(
                         "validKey",
                         Collections.singletonList(
-                                SinkVerticle.DefaultQuantity.newInstance(10, Units.MEGABYTE)))));
+                                SinkVerticle.DefaultQuantity.newInstance(10)))));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -212,23 +209,17 @@ public final class SinkHandlerTest {
                 "timerSamples",
                 Arrays.asList(
                         // BaseUnit
-                        SinkVerticle.DefaultQuantity.newInstance(100, Units.BYTE),
+                        SinkVerticle.DefaultQuantity.newInstance(100),
                         // TsdUnit
-                        SinkVerticle.DefaultQuantity.newInstance(20, Units.MEGABYTE),
+                        SinkVerticle.DefaultQuantity.newInstance(20),
                         // TsdCompoundUnit
-                        SinkVerticle.DefaultQuantity.newInstance(3, Units.BYTES_PER_SECOND),
+                        SinkVerticle.DefaultQuantity.newInstance(3),
                         // TsdCompoundUnit (Numerator Only)
                         SinkVerticle.DefaultQuantity.newInstance(
-                                4,
-                                new TsdCompoundUnit.Builder()
-                                        .setNumeratorUnits(ImmutableList.of(BaseUnit.BIT, BaseUnit.SECOND))
-                                        .build()),
+                                4),
                         // TsdCompoundUnit (Denominator Only)
                         SinkVerticle.DefaultQuantity.newInstance(
-                                5,
-                                new TsdCompoundUnit.Builder()
-                                        .setDenominatorUnits(ImmutableList.of(BaseUnit.CELSIUS, BaseUnit.SECOND))
-                                        .build())));
+                                5)));
         final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
                 ANNOTATIONS_KEY,
                 ImmutableMap.of(),
@@ -244,70 +235,6 @@ public final class SinkHandlerTest {
                 new SinkVerticle.DefaultEvent.Builder()
                         .setAnnotations(ImmutableMap.of())
                         .setTimerSamples(timerSampleMap)
-                        .setCounterSamples(ImmutableMap.of())
-                        .setGaugeSamples(ImmutableMap.of())
-                        .build());
-    }
-
-    @Test
-    public void testHandleWithTsdUnitBaseUnitOnly() throws JsonProcessingException {
-        final Map<String, List<Quantity>> expectedTimerSampleMap = ImmutableMap.of(
-                "timerSamples",
-                Arrays.asList(SinkVerticle.DefaultQuantity.newInstance(1, Units.BIT)));
-
-        final Map<String, Object> timerSampleMap = ImmutableMap.of(
-                "timerSamples",
-                Arrays.asList(ImmutableMap.<String, Object>of(
-                        "value", 1,
-                        "unit", ImmutableMap.of(
-                                "baseUnit", BaseUnit.BIT))));
-        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
-                ANNOTATIONS_KEY,
-                ImmutableMap.of(),
-                TIMER_SAMPLES_KEY,
-                timerSampleMap,
-                COUNTER_SAMPLES_KEY,
-                ImmutableMap.of(),
-                GAUGE_SAMPLES_KEY,
-                ImmutableMap.of()));
-        Mockito.doReturn(messageBody).when(_message).body();
-        _handler.handle(_message);
-        Mockito.verify(_mockSink).record(
-                new SinkVerticle.DefaultEvent.Builder()
-                        .setAnnotations(ImmutableMap.of())
-                        .setTimerSamples(expectedTimerSampleMap)
-                        .setCounterSamples(ImmutableMap.of())
-                        .setGaugeSamples(ImmutableMap.of())
-                        .build());
-    }
-
-    @Test
-    public void testHandleWithTsdUnitScaleOnly() throws JsonProcessingException {
-        final Map<String, List<Quantity>> expectedTimerSampleMap = ImmutableMap.of(
-                "timerSamples",
-                Arrays.asList(SinkVerticle.DefaultQuantity.newInstance(1, null)));
-
-        final Map<String, Object> timerSampleMap = ImmutableMap.of(
-                "timerSamples",
-                Arrays.asList(ImmutableMap.<String, Object>of(
-                        "value", 1,
-                        "unit", ImmutableMap.of(
-                                "baseScale", BaseScale.CENTI))));
-        final String messageBody = OBJECT_MAPPER.writeValueAsString(ImmutableMap.of(
-                ANNOTATIONS_KEY,
-                ImmutableMap.of(),
-                TIMER_SAMPLES_KEY,
-                timerSampleMap,
-                COUNTER_SAMPLES_KEY,
-                ImmutableMap.of(),
-                GAUGE_SAMPLES_KEY,
-                ImmutableMap.of()));
-        Mockito.doReturn(messageBody).when(_message).body();
-        _handler.handle(_message);
-        Mockito.verify(_mockSink).record(
-                new SinkVerticle.DefaultEvent.Builder()
-                        .setAnnotations(ImmutableMap.of())
-                        .setTimerSamples(expectedTimerSampleMap)
                         .setCounterSamples(ImmutableMap.of())
                         .setGaugeSamples(ImmutableMap.of())
                         .build());
@@ -331,7 +258,7 @@ public final class SinkHandlerTest {
                 ImmutableMap.of()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -352,7 +279,7 @@ public final class SinkHandlerTest {
                 ImmutableMap.of()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -373,7 +300,7 @@ public final class SinkHandlerTest {
                 ImmutableMap.of()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -395,7 +322,7 @@ public final class SinkHandlerTest {
                 ImmutableMap.of()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     @Test
@@ -417,7 +344,7 @@ public final class SinkHandlerTest {
                 ImmutableMap.of()));
         Mockito.doReturn(messageBody).when(_message).body();
         _handler.handle(_message);
-        Mockito.verifyZeroInteractions(_mockSink);
+        Mockito.verifyNoInteractions(_mockSink);
     }
 
     private SinkVerticle.SinkHandler _handler;
@@ -425,6 +352,8 @@ public final class SinkHandlerTest {
     private Sink _mockSink;
     @Mock
     private Message<String> _message;
+
+    private AutoCloseable _mocks;
 
     private static final String SINK_ADDRESS = "sink.address.sinkHandlerTest";
     private static final String ANNOTATIONS_KEY = "annotations";

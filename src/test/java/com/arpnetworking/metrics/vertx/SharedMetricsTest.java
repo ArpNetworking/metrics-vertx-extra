@@ -18,8 +18,8 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Counter;
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.Timer;
-import com.arpnetworking.metrics.Units;
 import com.google.common.collect.ImmutableMap;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +37,18 @@ import java.util.concurrent.TimeUnit;
  * @since 0.2.1
  */
 public class SharedMetricsTest {
+
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        _mocks = MockitoAnnotations.openMocks(this);
         Mockito.when(_mockMetrics.createTimer(Mockito.any(String.class))).thenReturn(_mockTimer);
         Mockito.when(_mockMetrics.createCounter(Mockito.any(String.class))).thenReturn(_mockCounter);
         _sharedMetrics = new SharedMetrics(_mockMetrics);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        _mocks.close();
     }
 
     @Test
@@ -118,12 +124,6 @@ public class SharedMetricsTest {
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
-    @Test
-    public void testSetTimerUnit() throws Exception {
-        _sharedMetrics.setTimer("name", 1234L, Units.MILLISECOND);
-        Mockito.verify(_mockMetrics, Mockito.times(1)).setTimer("name", 1234L, Units.MILLISECOND);
-        Mockito.verifyNoMoreInteractions(_mockMetrics);
-    }
 
     @Test
     public void testSetGaugeLong() throws Exception {
@@ -132,12 +132,6 @@ public class SharedMetricsTest {
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
-    @Test
-    public void testSetGaugeLongUnit() throws Exception {
-        _sharedMetrics.setGauge("name", 1234L, Units.BYTE);
-        Mockito.verify(_mockMetrics, Mockito.times(1)).setGauge("name", 1234L, Units.BYTE);
-        Mockito.verifyNoMoreInteractions(_mockMetrics);
-    }
 
     @Test
     public void testSetGaugeDouble() throws Exception {
@@ -146,12 +140,6 @@ public class SharedMetricsTest {
         Mockito.verifyNoMoreInteractions(_mockMetrics);
     }
 
-    @Test
-    public void testSetGaugeDoubleUnit() throws Exception {
-        _sharedMetrics.setGauge("name", 1.2D, Units.BYTE);
-        Mockito.verify(_mockMetrics, Mockito.times(1)).setGauge("name", 1.2D, Units.BYTE);
-        Mockito.verifyNoMoreInteractions(_mockMetrics);
-    }
 
     @Test
     public void testAddAnnotation() throws Exception {
@@ -203,5 +191,5 @@ public class SharedMetricsTest {
     @Mock
     private Counter _mockCounter;
     private SharedMetrics _sharedMetrics;
-
+    private AutoCloseable _mocks;
 }

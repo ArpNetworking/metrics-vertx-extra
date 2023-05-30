@@ -16,7 +16,6 @@
 package com.arpnetworking.metrics.vertx.test;
 
 import com.arpnetworking.metrics.Quantity;
-import com.arpnetworking.metrics.Unit;
 
 /**
  * Test implementation of <code>Quantity</code> interface.
@@ -30,18 +29,12 @@ public final class TestQuantityImpl implements Quantity {
         return _value;
     }
 
-    @Override
-    public Unit getUnit() {
-        return _unit;
-    }
 
     private TestQuantityImpl(final Builder builder) {
         _value = builder._value;
-        _unit = builder._unit;
     }
 
     private final Number _value;
-    private final Unit _unit;
 
     /**
      * Builder implementation of <code>TestQuantityImpl</code>.
@@ -68,18 +61,6 @@ public final class TestQuantityImpl implements Quantity {
             return this;
         }
 
-        /**
-         * Sets the unit attribute.
-         *
-         * @param value An instance of <code>Unit</code>.
-         * @return This instance of <code>Builder</code>.
-         */
-        public Builder setUnit(final Unit value) {
-            _unit = value;
-            return this;
-        }
-
         private Number _value;
-        private Unit _unit;
     }
 }

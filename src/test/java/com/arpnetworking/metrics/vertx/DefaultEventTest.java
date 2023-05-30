@@ -17,7 +17,6 @@ package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Quantity;
-import com.arpnetworking.metrics.Units;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,13 +39,13 @@ public class DefaultEventTest {
         annotations.put("foo", "bar");
         final Map<String, List<Quantity>> timerSamples = new HashMap<>();
         timerSamples.put("timer", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(1, null)));
+                SinkVerticle.DefaultQuantity.newInstance(1)));
         final Map<String, List<Quantity>> counterSamples = new HashMap<>();
         counterSamples.put("counter", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(1.23, null)));
+                SinkVerticle.DefaultQuantity.newInstance(1.23)));
         final Map<String, List<Quantity>> gaugeSamples = new HashMap<>();
         gaugeSamples.put("gauge", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(1.23, Units.BYTE)));
+                SinkVerticle.DefaultQuantity.newInstance(1.23)));
         // CHECKSTYLE.ON: IllegalInstantiation
         final Event event = new SinkVerticle.DefaultEvent.Builder()
                 .setAnnotations(annotations)
@@ -68,13 +67,13 @@ public class DefaultEventTest {
         annotations.put("foo", "bar");
         final Map<String, List<Quantity>> timerSamples = new HashMap<>();
         timerSamples.put("timer", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1))));
         final Map<String, List<Quantity>> counterSamples = new HashMap<>();
         counterSamples.put("counter", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         final Map<String, List<Quantity>> gaugeSamples = new HashMap<>();
         gaugeSamples.put("gauge", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), Units.BYTE)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         // CHECKSTYLE.ON: IllegalInstantiation
         final Event event = new SinkVerticle.DefaultEvent.Builder()
                 .setAnnotations(annotations)
@@ -93,13 +92,13 @@ public class DefaultEventTest {
         annotations.put("foo2", "bar");
         final Map<String, List<Quantity>> differentTimerSamples = new HashMap<>();
         differentTimerSamples.put("timer2", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1))));
         final Map<String, List<Quantity>> differentCounterSamples = new HashMap<>();
         differentCounterSamples.put("counter2", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         final Map<String, List<Quantity>> differentGaugeSamples = new HashMap<>();
         differentGaugeSamples.put("gauge2", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), Units.BYTE)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         // CHECKSTYLE.ON: IllegalInstantiation
 
         final Event differentEvent1 = new SinkVerticle.DefaultEvent.Builder()
@@ -144,13 +143,13 @@ public class DefaultEventTest {
         annotations.put("foo", "bar");
         final Map<String, List<Quantity>> timerSamples = new HashMap<>();
         timerSamples.put("timer", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1))));
         final Map<String, List<Quantity>> counterSamples = new HashMap<>();
         counterSamples.put("counter", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         final Map<String, List<Quantity>> gaugeSamples = new HashMap<>();
         gaugeSamples.put("gauge", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), Units.BYTE)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         // CHECKSTYLE.ON: IllegalInstantiation
 
         Assert.assertEquals(
@@ -177,13 +176,13 @@ public class DefaultEventTest {
         annotations.put("foo", "bar");
         final Map<String, List<Quantity>> timerSamples = new HashMap<>();
         timerSamples.put("timer", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Integer.valueOf(1))));
         final Map<String, List<Quantity>> counterSamples = new HashMap<>();
         counterSamples.put("counter", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), null)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         final Map<String, List<Quantity>> gaugeSamples = new HashMap<>();
         gaugeSamples.put("gauge", Collections.<Quantity>singletonList(
-                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23), Units.BYTE)));
+                SinkVerticle.DefaultQuantity.newInstance(Double.valueOf(1.23))));
         // CHECKSTYLE.ON: IllegalInstantiation
         final String asString = new SinkVerticle.DefaultEvent.Builder()
                 .setAnnotations(annotations)

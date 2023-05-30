@@ -18,21 +18,9 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
-import com.arpnetworking.metrics.Unit;
-import com.arpnetworking.metrics.impl.BaseScale;
-import com.arpnetworking.metrics.impl.BaseUnit;
-import com.arpnetworking.metrics.impl.TsdCompoundUnit;
-import com.arpnetworking.metrics.impl.TsdUnit;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -148,69 +136,10 @@ public abstract class SinkVerticle extends AbstractVerticle {
         static {
             final SimpleModule module = new SimpleModule();
             module.addAbstractTypeMapping(Quantity.class, DefaultQuantity.class);
-            module.addDeserializer(Unit.class, new UnitDeserializer());
             OBJECT_MAPPER.registerModule(module);
         }
 
-        private static final class UnitDeserializer extends JsonDeserializer<Unit> {
-            @Override
-            public Unit deserialize(
-                    final JsonParser jsonParser,
-                    final DeserializationContext deserializationContext) throws IOException {
-                return readUnit(jsonParser.readValueAs(JsonNode.class));
-            }
 
-            private static Unit readUnit(final JsonNode node) {
-                if (node instanceof TextNode) {
-                    // This is a base unit
-                    return readBaseUnit((TextNode) node);
-                } else if (node instanceof ObjectNode) {
-                    // This is a scaled or compound unit
-                    final ObjectNode objectNode = (ObjectNode) node;
-                    if (objectNode.has("numeratorUnits") || objectNode.has("denominatorUnits")) {
-                        // This is a compound unit
-                        final List<Unit> numeratorUnits = new ArrayList<>();
-                        final List<Unit> denominatorUnits = new ArrayList<>();
-                        if (objectNode.has("numeratorUnits")) {
-                            readUnitArray(numeratorUnits, objectNode.get("numeratorUnits"));
-                        }
-                        if (objectNode.has("denominatorUnits")) {
-                            readUnitArray(denominatorUnits, objectNode.get("denominatorUnits"));
-                        }
-                        return new TsdCompoundUnit.Builder()
-                                .setNumeratorUnits(numeratorUnits)
-                                .setDenominatorUnits(denominatorUnits)
-                                .build();
-                    } else if (objectNode.has("baseUnit") || objectNode.has("baseScale")) {
-                        // This is a scaled unit
-                        final TsdUnit.Builder tsdUnitBuilder = new TsdUnit.Builder();
-                        if (objectNode.has("baseUnit")) {
-                            tsdUnitBuilder.setBaseUnit(BaseUnit.valueOf(objectNode.get("baseUnit").asText()));
-                        }
-                        if (objectNode.has("baseScale")) {
-                            tsdUnitBuilder.setScale(BaseScale.valueOf(objectNode.get("baseScale").asText()));
-                        }
-                        return tsdUnitBuilder.build();
-                    }
-                }
-                throw new IllegalArgumentException("Expected unit; found: " + node);
-            }
-
-            private static Unit readBaseUnit(final TextNode node) {
-                return BaseUnit.valueOf(node.textValue());
-            }
-
-            private static void readUnitArray(final List<Unit> units, final JsonNode node) {
-                if (node.isArray()) {
-                    final ArrayNode arrayNode = (ArrayNode) node;
-                    for (final Iterator<JsonNode> iterator = arrayNode.elements(); iterator.hasNext();) {
-                        units.add(readUnit(iterator.next()));
-                    }
-                } else {
-                    throw new IllegalArgumentException("Expected unit list; found: " + node);
-                }
-            }
-        }
     }
 
     /**
@@ -371,11 +300,10 @@ public abstract class SinkVerticle extends AbstractVerticle {
          * Static factory method.
          *
          * @param value An instance of <code>Number</code>.
-         * @param unit An instance of <code>Unit</code>.
          * @return An instance of <code>Quantity</code>.
          */
-        public static Quantity newInstance(final Number value, @Nullable  final Unit unit) {
-            return new DefaultQuantity(value, unit);
+        public static Quantity newInstance(final Number value) {
+            return new DefaultQuantity(value);
         }
 
         @Override
@@ -383,10 +311,6 @@ public abstract class SinkVerticle extends AbstractVerticle {
             return _value;
         }
 
-        @Override
-        public Unit getUnit() {
-            return _unit;
-        }
 
         @Override
         public boolean equals(final Object other) {
@@ -399,23 +323,19 @@ public abstract class SinkVerticle extends AbstractVerticle {
             }
 
             final DefaultQuantity otherQuantity = (DefaultQuantity) other;
-            return Objects.equals(getUnit(), otherQuantity.getUnit())
-                   && Objects.equals(getValue(), otherQuantity.getValue());
+            return Objects.equals(getValue(), otherQuantity.getValue());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(_value, _unit);
+            return Objects.hash(_value);
         }
 
-        private DefaultQuantity(final Number value, @Nullable final Unit unit) {
+        private DefaultQuantity(final Number value) {
             _value = value;
-            _unit = unit;
         }
 
         @JsonProperty("value")
         private Number _value;
-        @JsonProperty("unit")
-        private Unit _unit;
     }
 }

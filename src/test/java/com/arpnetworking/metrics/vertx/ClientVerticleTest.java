@@ -15,7 +15,6 @@
  */
 package com.arpnetworking.metrics.vertx;
 
-import com.arpnetworking.metrics.Unit;
 import com.arpnetworking.metrics.vertx.test.TestClientVerticleImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,13 +24,14 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -46,12 +46,17 @@ public class ClientVerticleTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        _mocks = MockitoAnnotations.openMocks(this);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        _mocks.close();
     }
 
     @Test
     public void testClientVerticlePublishesToDefaultAddress(final TestContext context) throws JsonProcessingException {
-        Mockito.doNothing().when(_handler).handle(Matchers.<Message<String>>any());
+        Mockito.doNothing().when(_handler).handle(ArgumentMatchers.any());
         final String expectedData = OBJECT_MAPPER.writeValueAsString(
                 new SinkVerticle.DefaultEvent.Builder()
                         .setAnnotations(TestClientVerticleImpl.ANNOTATIONS)
@@ -79,13 +84,14 @@ public class ClientVerticleTest {
     @Captor
     private ArgumentCaptor<Message<String>> _argumentCaptor;
 
+    private AutoCloseable _mocks;
+
     private static final String DEFAULT_SINK_ADDRESS = "metrics.sink.default";
     private static final String TARGET_CLIENT_VERTICLE_NAME = TestClientVerticleImpl.class.getCanonicalName();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
         final SimpleModule module = new SimpleModule();
-        module.addSerializer(Unit.class, new EventBusSink.UnitSerializer());
         OBJECT_MAPPER.registerModule(module);
     }
 }
