@@ -46,7 +46,6 @@ import java.util.Map;
  */
 @RunWith(VertxUnitRunner.class)
 @NotThreadSafe
-
 public class SinkVerticleTest {
 
     @Before
