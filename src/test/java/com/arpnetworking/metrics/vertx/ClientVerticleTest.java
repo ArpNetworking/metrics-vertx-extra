@@ -24,6 +24,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import net.jcip.annotations.NotThreadSafe;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,6 +43,7 @@ import org.mockito.MockitoAnnotations;
  * @author Deepika Misra (deepika at groupon dot com)
  */
 @RunWith(VertxUnitRunner.class)
+@NotThreadSafe
 public class ClientVerticleTest {
 
     @Before
