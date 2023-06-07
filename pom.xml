@@ -92,7 +92,7 @@
     <junit.version>4.13.2</junit.version>
     <metrics.client.version>0.12.1</metrics.client.version>
     <mockito.version>5.3.1</mockito.version>
-    <slf4j.version>1.7.12</slf4j.version>
+    <slf4j.version>2.0.7</slf4j.version>
     <spotbugs-annotations.version>4.7.3</spotbugs-annotations.version>
     <vertx.version>4.4.2</vertx.version>
     <jcip-annotations.version>1.0-1</jcip-annotations.version>
