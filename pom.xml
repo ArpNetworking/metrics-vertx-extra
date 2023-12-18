@@ -93,7 +93,7 @@
     <metrics.client.version>0.12.1</metrics.client.version>
     <mockito.version>5.8.0</mockito.version>
     <slf4j.version>2.0.9</slf4j.version>
-    <spotbugs-annotations.version>4.8.2</spotbugs-annotations.version>
+    <spotbugs-annotations.version>4.8.3</spotbugs-annotations.version>
     <vertx.version>4.5.0</vertx.version>
     <jcip-annotations.version>1.0-1</jcip-annotations.version>
 
