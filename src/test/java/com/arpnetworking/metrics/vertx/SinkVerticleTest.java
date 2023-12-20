@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.ThreadingModel;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -55,7 +56,7 @@ public class SinkVerticleTest {
                 new DeploymentOptions()
                         .setConfig(new JsonObject(Collections.singletonMap("sinkAddress", SINK_ADDRESS)))
                         .setInstances(1)
-                        .setWorker(true),
+                        .setThreadingModel(ThreadingModel.WORKER),
                 context.asyncAssertSuccess()
         );
     }
