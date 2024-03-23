@@ -92,7 +92,7 @@ public abstract class SinkVerticle extends AbstractVerticle {
          * @param sinks A {@link List} of sinks.
          */
         public SinkHandler(final List<Sink> sinks) {
-            _sinks = sinks;
+            _sinks = new ArrayList<>(sinks);
         }
 
         @Override

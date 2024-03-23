@@ -18,6 +18,7 @@ package com.arpnetworking.metrics.vertx;
 import com.arpnetworking.metrics.Counter;
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.Timer;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.vertx.core.shareddata.Shareable;
 
 import java.time.Instant;
@@ -36,6 +37,7 @@ public class SharedMetrics implements Metrics, Shareable {
      *  Constructs a new SharedMetrics object that can be added to a vertx shared data map/set.
      *  @param wrappedMetrics - Metrics object to wrap.
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public SharedMetrics(final Metrics wrappedMetrics) {
         _wrappedMetrics = wrappedMetrics;
     }
