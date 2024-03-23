@@ -51,7 +51,7 @@ public final class SinkHandlerTest {
     }
 
     @After
-    public void teardown() throws Exception {
+    public void tearDown() throws Exception {
         _mockSink = null;
         _message = null;
         _mocks.close();

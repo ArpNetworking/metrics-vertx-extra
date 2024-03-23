@@ -17,6 +17,7 @@ package com.arpnetworking.metrics.vertx;
 
 import com.arpnetworking.metrics.Metrics;
 import com.arpnetworking.metrics.MetricsFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.vertx.core.shareddata.Shareable;
 
 /**
@@ -32,6 +33,7 @@ public class SharedMetricsFactory implements MetricsFactory, Shareable {
      *
      *  @param wrappedMetricsFactory - MetricsFactory object to wrap.
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "Should validate at compile time.")
     public SharedMetricsFactory(final MetricsFactory wrappedMetricsFactory) {
         if (wrappedMetricsFactory == null) {
             throw new IllegalArgumentException("MetricsFactory cannot be null.");
@@ -44,5 +46,6 @@ public class SharedMetricsFactory implements MetricsFactory, Shareable {
         return _wrappedMetricsFactory.create();
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Factory is effectively immutable.")
     private final MetricsFactory _wrappedMetricsFactory;
 }
