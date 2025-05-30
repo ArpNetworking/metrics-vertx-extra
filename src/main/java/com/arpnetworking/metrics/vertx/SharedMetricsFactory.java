@@ -46,6 +46,5 @@ public class SharedMetricsFactory implements MetricsFactory, Shareable {
         return _wrappedMetricsFactory.create();
     }
 
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Factory is effectively immutable.")
     private final MetricsFactory _wrappedMetricsFactory;
 }
