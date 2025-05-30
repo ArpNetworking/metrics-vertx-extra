@@ -19,7 +19,6 @@ import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Sink;
 import com.arpnetworking.metrics.vertx.SinkVerticle;
 import com.google.common.collect.ImmutableList;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import org.mockito.Mockito;
@@ -60,8 +59,6 @@ public final class TestSinkVerticleImpl extends SinkVerticle {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        @SuppressFBWarnings("DE_MIGHT_IGNORE")
         public void handle(final Message<String> message) {
             try {
                 super.processMessage(message);

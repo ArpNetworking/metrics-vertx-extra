@@ -19,6 +19,7 @@ import com.arpnetworking.metrics.Event;
 import com.arpnetworking.metrics.Quantity;
 import com.arpnetworking.metrics.Sink;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.vertx.core.AbstractVerticle;
@@ -115,9 +116,9 @@ public abstract class SinkVerticle extends AbstractVerticle {
          * Process a message. All exceptions are propagated to callers.
          *
          * @param message The Message instance to process.
-         * @throws Exception if Message processing fails.
+         * @throws JsonProcessingException if Message processing fails.
          */
-        protected void processMessage(final Message<String> message) throws Exception {
+        protected void processMessage(final Message<String> message) throws JsonProcessingException {
             final DefaultEvent.Builder eventBuilder = OBJECT_MAPPER.readValue(message.body(), DefaultEvent.Builder.class);
             final Event event = eventBuilder.build();
             for (final Sink sink: _sinks) {
