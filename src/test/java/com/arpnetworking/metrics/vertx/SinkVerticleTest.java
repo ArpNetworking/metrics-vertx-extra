@@ -56,9 +56,8 @@ public class SinkVerticleTest {
                 new DeploymentOptions()
                         .setConfig(new JsonObject(Collections.singletonMap("sinkAddress", SINK_ADDRESS)))
                         .setInstances(1)
-                        .setThreadingModel(ThreadingModel.WORKER),
-                context.asyncAssertSuccess()
-        );
+                        .setThreadingModel(ThreadingModel.WORKER))
+                .onComplete(context.asyncAssertSuccess());
     }
 
 
@@ -87,10 +86,8 @@ public class SinkVerticleTest {
                         .setCounterSamples(counterSampleMap)
                         .setGaugeSamples(gaugeSampleMap)
                         .build());
-        _rule.vertx().eventBus().request(
-                SINK_ADDRESS,
-                data,
-                (AsyncResult<Message<String>> reply) -> {
+        _rule.vertx().eventBus().<String>request(SINK_ADDRESS, data)
+                .onComplete((AsyncResult<Message<String>> reply) -> {
                     // TODO(vkoskela): The hook should get the deserialized data and compare it with equals().
                     System.err.println(reply.result());
                     context.assertEquals(data, reply.result().body());
@@ -100,10 +97,10 @@ public class SinkVerticleTest {
     @Test
     public void testInvalidMessageSentOnEB(final TestContext context) throws JsonProcessingException, InterruptedException {
         final Map<String, Object> dataMap = ImmutableMap.of("someKey", "someValue");
-        _rule.vertx().eventBus().request(
+        _rule.vertx().eventBus().<String>request(
                 SINK_ADDRESS,
-                OBJECT_MAPPER.writeValueAsString(dataMap),
-                (AsyncResult<Message<String>> reply) -> {
+                OBJECT_MAPPER.writeValueAsString(dataMap))
+                .onComplete((AsyncResult<Message<String>> reply) -> {
                     System.err.println(reply.result());
                     context.assertNull(reply.result());
                     context.fail("No reply should have been sent to an invalid message");

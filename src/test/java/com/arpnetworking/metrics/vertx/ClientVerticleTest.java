@@ -71,10 +71,8 @@ public class ClientVerticleTest {
                 DEFAULT_SINK_ADDRESS,
                 (Handler<Message<String>>) message -> context.assertEquals(expectedData, message.body()));
 
-        _rule.vertx().deployVerticle(
-                TARGET_CLIENT_VERTICLE_NAME,
-                context.asyncAssertSuccess()
-        );
+        _rule.vertx().deployVerticle(TARGET_CLIENT_VERTICLE_NAME)
+                .onComplete(context.asyncAssertSuccess());
     }
 
     @Mock
