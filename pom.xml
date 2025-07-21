@@ -28,7 +28,7 @@
   <packaging>jar</packaging>
   <name>Vertx Extra</name>
   <description>Extension to metrics-java-client which adapts the client for use in the Vert.x framework.</description>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <licenses>
     <license>
@@ -80,7 +80,7 @@
     <connection>scm:git:git@github.com:arpnetworking/metrics-vertx-extra.git</connection>
     <developerConnection>scm:git:git@github.com:arpnetworking/metrics-vertx-extra.git</developerConnection>
     <url>https://github.com/arpnetworking/metrics-vertx-extra</url>
-    <tag>HEAD</tag>
+    <tag>vertx-extra-1.0.0</tag>
   </scm>
 
   <properties>
