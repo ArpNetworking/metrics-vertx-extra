@@ -28,7 +28,7 @@
   <packaging>jar</packaging>
   <name>Vertx Extra</name>
   <description>Extension to metrics-java-client which adapts the client for use in the Vert.x framework.</description>
-  <version>0.7.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
 
   <licenses>
     <license>
